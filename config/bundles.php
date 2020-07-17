@@ -13,5 +13,6 @@ return [
     Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true, 'test' => true],
     Symfony\Bundle\MakerBundle\MakerBundle::class => ['dev' => true],
     JMS\SerializerBundle\JMSSerializerBundle::class => ['all' => true],
-
+    FOS\RestBundle\FOSRestBundle::class => ['all' => true],
+    Nelmio\CorsBundle\NelmioCorsBundle::class => ['all' => true],
 ];
