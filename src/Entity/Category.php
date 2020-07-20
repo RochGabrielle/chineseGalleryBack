@@ -24,6 +24,11 @@ class Category implements TranslatableInterface
     private $id;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $key;
+
+    /**
      * @ORM\OneToMany(targetEntity=Article::class, mappedBy="category")
      */
     private $articles;
@@ -65,6 +70,18 @@ class Category implements TranslatableInterface
                 $article->setCategory(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getKey(): ?string
+    {
+        return $this->key;
+    }
+
+    public function setKey(string $key): self
+    {
+        $this->key = $key;
 
         return $this;
     }

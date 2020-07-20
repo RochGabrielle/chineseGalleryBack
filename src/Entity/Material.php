@@ -24,6 +24,11 @@ class Material implements TranslatableInterface
     private $id;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $key;
+
+    /**
      * @ORM\OneToMany(targetEntity=Article::class, mappedBy="material")
      */
     private $articles;
@@ -65,6 +70,18 @@ class Material implements TranslatableInterface
                 $article->setMaterial(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getKey(): ?string
+    {
+        return $this->key;
+    }
+
+    public function setKey(string $key): self
+    {
+        $this->key = $key;
 
         return $this;
     }

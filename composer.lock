@@ -4,11 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-<<<<<<< HEAD
     "content-hash": "3271548947541ec74c118f83d0923178",
-=======
-    "content-hash": "7ebf2c1890120f187487128e24206ca0",
->>>>>>> f8060867e491fb9d00c3ca692f695f57ffe31f79
     "packages": [
         {
             "name": "brick/math",
@@ -1385,8 +1381,6 @@
             "time": "2020-06-16T20:11:17+00:00"
         },
         {
-<<<<<<< HEAD
-=======
             "name": "friendsofsymfony/rest-bundle",
             "version": "3.0.2",
             "source": {
@@ -1488,7 +1482,6 @@
             "time": "2020-07-14T14:43:02+00:00"
         },
         {
->>>>>>> f8060867e491fb9d00c3ca692f695f57ffe31f79
             "name": "jms/metadata",
             "version": "2.3.0",
             "source": {
@@ -1625,15 +1618,12 @@
                 "serialization",
                 "xml"
             ],
-<<<<<<< HEAD
             "funding": [
                 {
                     "url": "https://github.com/goetas",
                     "type": "github"
                 }
             ],
-=======
->>>>>>> f8060867e491fb9d00c3ca692f695f57ffe31f79
             "time": "2020-06-28T11:22:30+00:00"
         },
         {
@@ -1708,7 +1698,6 @@
                 "serialization",
                 "xml"
             ],
-<<<<<<< HEAD
             "funding": [
                 {
                     "url": "https://github.com/goetas",
@@ -1798,11 +1787,6 @@
             "time": "2020-06-22T22:48:31+00:00"
         },
         {
-=======
-            "time": "2020-06-28T11:26:21+00:00"
-        },
-        {
->>>>>>> f8060867e491fb9d00c3ca692f695f57ffe31f79
             "name": "monolog/monolog",
             "version": "1.25.4",
             "source": {

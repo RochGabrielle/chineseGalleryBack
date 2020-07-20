@@ -2,15 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\CategoryTranslationRepository;
+use App\Repository\NavigationTranslationRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Knp\DoctrineBehaviors\Contract\Entity\TranslationInterface;
 use Knp\DoctrineBehaviors\Model\Translatable\TranslationTrait;
 
 /**
- * @ORM\Entity(repositoryClass=CategoryTranslationRepository::class)
+ * @ORM\Entity(repositoryClass=NavigationTranslationRepository::class)
  */
-class CategoryTranslation implements TranslationInterface
+class NavigationTranslation implements TranslationInterface
 {
     use TranslationTrait;
     

@@ -24,21 +24,21 @@ class ThemeTranslation implements TranslationInterface
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $theme_name;
+    private $name;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getThemeName(): ?string
+    public function getName(): ?string
     {
-        return $this->theme_name;
+        return $this->name;
     }
 
-    public function setThemeName(string $theme_name): self
+    public function setName(string $name): self
     {
-        $this->theme_name = $theme_name;
+        $this->name = $name;
 
         return $this;
     }

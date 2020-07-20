@@ -24,21 +24,21 @@ class MaterialTranslation implements TranslationInterface
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $material_name;
+    private $name;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getMaterialName(): ?string
+    public function getName(): ?string
     {
-        return $this->material_name;
+        return $this->name;
     }
 
-    public function setMaterialName(string $material_name): self
+    public function setName(string $material_name): self
     {
-        $this->material_name = $material_name;
+        $this->name = $name;
 
         return $this;
     }

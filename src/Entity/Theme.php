@@ -24,6 +24,11 @@ class Theme implements TranslatableInterface
     private $id;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $key;
+
+    /**
      * @ORM\ManyToMany(targetEntity=Article::class, mappedBy="theme")
      */
     private $articles;
@@ -62,6 +67,18 @@ class Theme implements TranslatableInterface
             $this->articles->removeElement($article);
             $article->removeTheme($this);
         }
+
+        return $this;
+    }
+
+    public function getKey(): ?string
+    {
+        return $this->key;
+    }
+
+    public function setKey(string $key): self
+    {
+        $this->key = $key;
 
         return $this;
     }
