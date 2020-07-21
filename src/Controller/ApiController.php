@@ -84,4 +84,26 @@ class ApiController extends Controller
         return $response;
 
     }
+
+      /**
+     * @Route("/api/article_add", name="add_article", methods={"POST"})
+     */
+    public function addArticleAction( Request $request)
+    {
+        $content = json_decode($request->getContent(), true);
+      
+        //
+        //$navigationMenu->translate('en')->setMenuName();
+
+        
+        //$entityManager->flush();   
+        } else {
+            $content = "le json est invalide";
+        }
+        $data = $this->get('jms_serializer')->serialize($content, 'json');
+
+        $response = new Response($data);
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+    }
 }
