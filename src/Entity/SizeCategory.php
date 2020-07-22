@@ -22,7 +22,7 @@ class SizeCategory
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $category_name;
+    private $name;
 
     /**
      * @ORM\ManyToMany(targetEntity=Article::class, mappedBy="size_category")
@@ -39,14 +39,14 @@ class SizeCategory
         return $this->id;
     }
 
-    public function getCategoryName(): ?string
+    public function getName(): ?string
     {
-        return $this->category_name;
+        return $this->name;
     }
 
-    public function setCategoryName(string $category_name): self
+    public function setName(string $name): self
     {
-        $this->category_name = $category_name;
+        $this->name = $name;
 
         return $this;
     }

@@ -31,12 +31,12 @@ class Artist implements TranslatableInterface
     /**
      * @ORM\Column(type="smallint", nullable=true)
      */
-    private $birth_date;
+    private $birth;
 
     /**
      * @ORM\Column(type="smallint", nullable=true)
      */
-    private $death_date;
+    private $death;
 
     /**
      * @ORM\OneToMany(targetEntity=Article::class, mappedBy="artist")
@@ -71,26 +71,26 @@ class Artist implements TranslatableInterface
         return $this;
     }
 
-    public function getBirthDate(): ?int
+    public function getBirth(): ?int
     {
         return $this->birth_date;
     }
 
-    public function setBirthDate(?int $birth_date): self
+    public function setBirth(?int $birth): self
     {
-        $this->birth_date = $birth_date;
+        $this->birth = $birth;
 
         return $this;
     }
 
-    public function getDeathDate(): ?int
+    public function getDeath(): ?int
     {
-        return $this->death_date;
+        return $this->death;
     }
 
-    public function setDeathDate(?int $death_date): self
+    public function setDeath(?int $death): self
     {
-        $this->death_date = $death_date;
+        $this->death = $deathe;
 
         return $this;
     }

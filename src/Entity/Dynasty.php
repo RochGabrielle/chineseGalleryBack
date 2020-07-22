@@ -26,17 +26,17 @@ class Dynasty implements TranslatableInterface
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $dynasty_name;
+    private $name;
 
     /**
      * @ORM\Column(type="smallint", nullable=true)
      */
-    private $date_beginning;
+    private $birth;
 
     /**
      * @ORM\Column(type="smallint", nullable=true)
      */
-    private $date_end;
+    private $death;
 
     /**
      * @ORM\OneToMany(targetEntity=Article::class, mappedBy="dynasty")
@@ -59,38 +59,38 @@ class Dynasty implements TranslatableInterface
         return $this->id;
     }
 
-    public function getDynastyName(): ?string
+    public function getName(): ?string
     {
-        return $this->dynasty_name;
+        return $this->name;
     }
 
-    public function setDynastyName(string $dynasty_name): self
+    public function setName(string $name): self
     {
-        $this->dynasty_name = $dynasty_name;
+        $this->name = $name;
 
         return $this;
     }
 
-    public function getDateBeginning(): ?int
+    public function getBirth(): ?int
     {
-        return $this->date_beginning;
+        return $this->birth;
     }
 
-    public function setDateBeginning(?int $date_beginning): self
+    public function setBirth(?int $birth): self
     {
-        $this->date_beginning = $date_beginning;
+        $this->birth = $birth;
 
         return $this;
     }
 
-    public function getDateEnd(): ?int
+    public function getDeath(): ?int
     {
-        return $this->date_end;
+        return $this->death;
     }
 
-    public function setDateEnd(?int $date_end): self
+    public function setDeath(?int $death): self
     {
-        $this->date_end = $date_end;
+        $this->death = $death;
 
         return $this;
     }

@@ -25,6 +25,11 @@ class Discount
     private $discount_value;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $discount_name;
+
+    /**
      * @ORM\OneToMany(targetEntity=Article::class, mappedBy="discount")
      */
     private $articles;
@@ -47,6 +52,18 @@ class Discount
     public function setDiscountValue(?float $discount_value): self
     {
         $this->discount_value = $discount_value;
+
+        return $this;
+    }
+
+    public function getDiscountName(): ?float
+    {
+        return $this->discount_name;
+    }
+
+    public function setDiscountName(?float $discount_name): self
+    {
+        $this->discount_name = $discount_name;
 
         return $this;
     }

@@ -26,7 +26,7 @@ class Material implements TranslatableInterface
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $key;
+    private $placeholder;
 
     /**
      * @ORM\OneToMany(targetEntity=Article::class, mappedBy="material")
@@ -74,14 +74,14 @@ class Material implements TranslatableInterface
         return $this;
     }
 
-    public function getKey(): ?string
+    public function getPlaceholder(): ?string
     {
-        return $this->key;
+        return $this->placeholder;
     }
 
-    public function setKey(string $key): self
+    public function setPlaceholder(string $placeholder): self
     {
-        $this->key = $key;
+        $this->placeholder = $placeholder;
 
         return $this;
     }
