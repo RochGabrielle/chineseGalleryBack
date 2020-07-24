@@ -2,25 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\Sizecategory;
+use App\Entity\SizecategoryTranslation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Sizecategory|null find($id, $lockMode = null, $lockVersion = null)
- * @method Sizecategory|null findOneBy(array $criteria, array $orderBy = null)
- * @method Sizecategory[]    findAll()
- * @method Sizecategory[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method SizecategoryTranslation|null find($id, $lockMode = null, $lockVersion = null)
+ * @method SizecategoryTranslation|null findOneBy(array $criteria, array $orderBy = null)
+ * @method SizecategoryTranslation[]    findAll()
+ * @method SizecategoryTranslation[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class SizecategoryRepository extends ServiceEntityRepository
+class SizecategoryTranslationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, SizeCategory::class);
+        parent::__construct($registry, SizecategoryTranslation::class);
     }
 
     // /**
-    //  * @return Sizecategory[] Returns an array of Sizecategory objects
+    //  * @return SizecategoryTranslation[] Returns an array of SizecategoryTranslation objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class SizecategoryRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?Sizecategory
+    public function findOneBySomeField($value): ?SizecategoryTranslation
     {
         return $this->createQueryBuilder('s')
             ->andWhere('s.exampleField = :val')

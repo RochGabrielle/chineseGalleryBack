@@ -6,12 +6,16 @@ use App\Repository\DiscountRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Knp\DoctrineBehaviors\Contract\Entity\TranslatableInterface;
+use Knp\DoctrineBehaviors\Model\Translatable\TranslatableTrait;
 
 /**
  * @ORM\Entity(repositoryClass=DiscountRepository::class)
  */
-class Discount
+class Discount implements TranslatableInterface
 {
+    use TranslatableTrait;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -22,12 +26,12 @@ class Discount
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private $discount_value;
+    private $discountrate;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      */
-    private $discount_name;
+    private $placeholder;
 
     /**
      * @ORM\OneToMany(targetEntity=Article::class, mappedBy="discount")
@@ -44,26 +48,26 @@ class Discount
         return $this->id;
     }
 
-    public function getDiscountValue(): ?float
+    public function getDiscountrate(): ?float
     {
-        return $this->discount_value;
+        return $this->discountrate;
     }
 
-    public function setDiscountValue(?float $discount_value): self
+    public function setDiscountrate(?float $discountrate): self
     {
-        $this->discount_value = $discount_value;
+        $this->discountrate = $discountrate;
 
         return $this;
     }
 
-    public function getDiscountName(): ?float
+    public function getPlaceholder(): string
     {
-        return $this->discount_name;
+        return $this->placeholder;
     }
 
-    public function setDiscountName(?float $discount_name): self
+    public function setPlaceholder(string $placeholder): self
     {
-        $this->discount_name = $discount_name;
+        $this->placeholder = $placeholder;
 
         return $this;
     }

@@ -13,11 +13,12 @@ use App\Entity\Category;
 use App\Entity\Dynasty;
 use App\Entity\Theme;
 use App\Entity\Article;
+use App\Entity\Sizecategory;
 
 
 class ApiController extends Controller
 {
-   protected $languages = array("en_gb", "fr_fr");
+ protected $languages = array("fr_fr", "en_gb");
 
     /**
      * @Route("/api/translation_add", name="add_translation", methods={"POST"})
@@ -25,43 +26,43 @@ class ApiController extends Controller
     public function addTranslationAction( Request $request)
     {
         $content = json_decode($request->getContent(), true);
-
         if (isset($content["placeholder"]) && isset($content["fr_fr"]) && isset($content["en_gb"]) && isset($content["entity"])) {
             $entityClass = 'App\Entity\\'.ucfirst($content["entity"]);
             if (class_exists($entityClass)) {
 
                 $entityManager = $this->getDoctrine()->getManager();
                 $entity = $entityManager->getRepository($entityClass)->findOneByPlaceholder($content["placeholder"]);
+                $langs =array_values($this->languages);
 
                 if ($entity) {
-                    foreach($this->languages as $lang) {
-                        var_dump($content[strval($lang)]);
-                        if(empty($entity->translate($lang)->getName()) || ($entity->translate($lang)->getName() != $content[$lang]) ) {
-                            $entity->translate($lang)->setName($content[$lang]);
+                    $i = 0;
+                    while(isset($langs[$i])) {
+                        if(empty($entity->translate($langs[$i])->getName()) || ($entity->translate($langs[$i])->getName() != $content[$langs[$i]]) ) {
+                            $entity->translate($langs[$i])->setName($content[$langs[$i]]);
                             $entity->mergeNewTranslations();
-                            $content = "update of ". $content["placeholder"] . " in " .$content["entity"];   
+                            $responseMsessage = "update of ". $content["placeholder"] . " in " .$content["entity"];   
                         }
+                        $i++;
                     }
-
                 } else {
                     $entity = new $entityClass();
                     $entity->setPlaceholder($content["placeholder"]);
                     foreach($this->languages as $lang) {
                         $entity->translate($lang)->setName($content[$lang]);
                         $entity->mergeNewTranslations();
-                        $content = "new ".$content["entity"]." created.";
+                        $responseMsessage = "new ".$content["entity"]." created.";
                     }       
                 }
                 $entityManager->persist($entity);
                 $entityManager->flush();
 
             } else {
-                $content = "the ".$entity." entity doesn't exist.";
+                $responseMsessage = "the ".$entity." entity doesn't exist.";
             }
         } else {
-            $content = "le json est invalide";
+            $responseMsessage = "le json est invalide";
         }
-        $data = $this->get('jms_serializer')->serialize($content, 'json');
+        $data = $this->get('jms_serializer')->serialize($responseMsessage, 'json');
 
         $response = new Response($data);
         $response->headers->set('Content-Type', 'application/json');
@@ -148,12 +149,12 @@ class ApiController extends Controller
                 $entity->setDeath($content["death"]);
             }
             if((!empty($entity->translate($content["lang"])->getDescription()) && $entity->translate($content["lang"])->getDescription() != $content["description"]) || empty($entity->translate($content["lang"])->getDescription())) {
-               $entity->translate($content["lang"])->setDescription($content["description"]);
-               $entity->mergeNewTranslations();
-           } 
+             $entity->translate($content["lang"])->setDescription($content["description"]);
+             $entity->mergeNewTranslations();
+         } 
 
-           $content = "update dynasty";              
-       } else {
+         $content = "update dynasty";              
+     } else {
         $entity = new $entityClass();
         $entity->setName($content["name"]);
         $entity->setBirth($content["birth"]);
@@ -183,90 +184,87 @@ return $response;
     {
         $content = json_decode($request->getContent(), true);
 
-        if (isset($content["name"]) && isset($content["value"]) ) {
+        if (isset($content["placeholder"]) && 
+            isset($content["discountrate"]) && 
+            isset($content["en_gb"]) && 
+            isset($content["fr_fr"]) ) {
             $entityClass = 'App\Entity\Discount';
 
-            $entityManager = $this->getDoctrine()->getManager();
-            $entity = $entityManager->getRepository($entityClass)->findOneByName($content["name"]);
+        $entityManager = $this->getDoctrine()->getManager();
+        $entity = $entityManager->getRepository($entityClass)->findOneByPlaceholder($content["placeholder"]);
 
-            if ($entity) {
-                if($entity->getDiscountValue() != $content["value"]) {
-                    $entity->setDiscountValue($content["value"]);
+        if ($entity) {
+            if($entity->getDiscountrate() != $content["discountrate"]) {
+                $entity->setDiscountrate($content["discountrate"]);
+            }
+            foreach($this->languages as $lang) {
+                if(empty($entity->translate($lang)->getName()) || ($entity->translate($lang)->getName() != $content[$lang]) ) {
+                    $entity->translate($lang)->setName($content[$lang]);
+                    
+                    $responseMsessage = "update of ". $content["placeholder"];   
                 }
-
-                $content = "update discount";              
-            } else {
-                $entity = new $entityClass();
-                $entity->setName($content["name"]);
-                $entity->setDiscountValue($content["value"]);
-            }       
-            
-            $entityManager->persist($entity);
-            $entityManager->flush();
-
+            }
+            $entity->mergeNewTranslations();
         } else {
-            $content = "le json est invalide";
+            $entity = new $entityClass();
+            $entity->setPlaceholder($content["placeholder"]);
+            $entity->setDiscountrate($content["discountrate"]);
+            foreach($this->languages as $lang) {
+                $entity->translate($lang)->setName($content[$lang]);
+                $entity->mergeNewTranslations();
+                $responseMsessage = "new discount created.";
+            }       
         }
-        $data = $this->get('jms_serializer')->serialize($content, 'json');
+        $entityManager->persist($entity);
+        $entityManager->flush();  
 
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
-    }
+    } else {
+     $responseMsessage = "le json est invalide";
+ }
+ $data = $this->get('jms_serializer')->serialize($responseMsessage, 'json');
+
+ $response = new Response($data);
+ $response->headers->set('Content-Type', 'application/json');
+ return $response;
+}
 
     /**
-     * @Route("/api/add_size_category", name="add_size_category", methods={"POST"})
+     * @Route("/api/discountlist", name="discountlist", methods={"GET"})
      */
-    public function addSizeCategoryAction( Request $request)
+    public function discountListAction( Request $request)
     {
         $content = json_decode($request->getContent(), true);
 
-        if (isset($content["name"]))  {
-            $entityClass = 'App\Entity\SizeCategory';
+        $entityClass = 'App\Entity\Discount';
 
-            $entityManager = $this->getDoctrine()->getManager();
-            $entity = $entityManager->getRepository($entityClass)->findOneByName($content["name"]);
+        $entityManager = $this->getDoctrine()->getManager();
+        $allDiscount = $entityManager->getRepository($entityClass)->findAll();
 
-            if (!$entity) {
-                $entity = new $entityClass();
-                $entity->setName($content["name"]);
-                $entityManager->persist($entity);
-                $entityManager->flush();
-            }      
+        if ($allDiscount) {
+            $discountList = array();
+            $i = 0;
+            foreach ($allDiscount as $discount) {
+                $discountList[$i] = array( 
+                    "placeholder" => $discount->getPlaceholder(),
+                    "discountrate" => $discount->getDiscountrate());
+                foreach($this->languages as $lang) {
+                    $discountList[$i][$lang] = $discount->translate($lang)->getName();
+                }                       
+                $i++;
+            }
         } else {
             $content = "le json est invalide";
         }
-        $data = $this->get('jms_serializer')->serialize($content, 'json');
+        $data = $this->get('jms_serializer')->serialize($discountList, 'json');
 
         $response = new Response($data);
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
 
-    /**
-     * @Route("/api/get_size_category", name="get_size_category", methods={"POST"})
-     */
-    public function getSizeCategoryAction( )
-    {
-        $entityClass = 'App\Entity\SizeCategory';
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $sizeCategories = $entityManager->getRepository($entityClass)->findAll();
-        $sizeCategoryList = array();
-        if( !empty($sizeCategories)) {
-            foreach($sizeCategories as $sizeCategory){
-                array_push($sizeCategoryList, $sizeCategory->getCategoryName());
-            }
-        }
 
-           //$data = $this->get('jms_serializer')->serialize($translations, 'json');
-        $data = json_encode($sizeCategoryList) ;
-        $data = $this->get('jms_serializer')->serialize($content, 'json');
-
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
-    }
+    
 
     /**
      * @Route("/api/getElementList/{element}", name="get_element_list", methods={"GET"})
@@ -334,9 +332,9 @@ return $response;
             if( !empty($placeholders)) {
                 $i =0;
                 foreach ($placeholders as $element){
-                   $translations = array();
-                   $translations["placeholder"] = $element->getPlaceholder();
-                   foreach ($this->languages as $lang) {
+                 $translations = array();
+                 $translations["placeholder"] = $element->getPlaceholder();
+                 foreach ($this->languages as $lang) {
                     $translations[$lang] = $element->translate($lang)->getName();
                 }
 

@@ -2,16 +2,20 @@
 
 namespace App\Entity;
 
-use App\Repository\SizeCategoryRepository;
+use App\Repository\SizecategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Knp\DoctrineBehaviors\Contract\Entity\TranslatableInterface;
+use Knp\DoctrineBehaviors\Model\Translatable\TranslatableTrait;
 
 /**
- * @ORM\Entity(repositoryClass=SizeCategoryRepository::class)
+ * @ORM\Entity(repositoryClass=SizecategoryRepository::class)
  */
-class SizeCategory
+class Sizecategory implements TranslatableInterface
 {
+    use TranslatableTrait;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -22,10 +26,10 @@ class SizeCategory
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private $placeholder;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Article::class, mappedBy="size_category")
+     * @ORM\ManyToMany(targetEntity=Article::class, mappedBy="sizecategory")
      */
     private $articles;
 
@@ -39,14 +43,14 @@ class SizeCategory
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getPlaceholder(): ?string
     {
-        return $this->name;
+        return $this->placeholder;
     }
 
-    public function setName(string $name): self
+    public function setPlaceholder(string $placeholder): self
     {
-        $this->name = $name;
+        $this->placeholder = $placeholder;
 
         return $this;
     }

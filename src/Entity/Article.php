@@ -36,7 +36,7 @@ class Article implements TranslatableInterface
     /**
      * @ORM\Column(type="smallint", nullable=true)
      */
-    private $date_of_creation;
+    private $birth;
 
     /**
      * @ORM\Column(type="float")
@@ -76,9 +76,9 @@ class Article implements TranslatableInterface
     private $Size;
 
     /**
-     * @ORM\ManyToMany(targetEntity=SizeCategory::class, inversedBy="articles")
+     * @ORM\ManyToMany(targetEntity=Sizecategory::class, inversedBy="articles")
      */
-    private $size_category;
+    private $sizecategory;
 
     /**
      * @ORM\ManyToMany(targetEntity=Theme::class, inversedBy="articles")
@@ -121,14 +121,14 @@ class Article implements TranslatableInterface
         return $this;
     }
 
-    public function getDateOfCreation(): ?int
+    public function getBirth(): ?int
     {
-        return $this->date_of_creation;
+        return $this->birth;
     }
 
-    public function setDateOfCreation(?int $date_of_creation): self
+    public function setBirth(?int $birth): self
     {
-        $this->date_of_creation = $date_of_creation;
+        $this->birth = $birth;
 
         return $this;
     }
@@ -232,26 +232,26 @@ class Article implements TranslatableInterface
     }
 
     /**
-     * @return Collection|SizeCategory[]
+     * @return Collection|Sizecategory[]
      */
-    public function getSizeCategory(): Collection
+    public function getSizecategory(): Collection
     {
-        return $this->size_category;
+        return $this->sizecategory;
     }
 
-    public function addSizeCategory(SizeCategory $sizeCategory): self
+    public function addSizecategory(SizeCategory $sizecategory): self
     {
-        if (!$this->size_category->contains($sizeCategory)) {
-            $this->size_category[] = $sizeCategory;
+        if (!$this->sizecategory->contains($sizecategory)) {
+            $this->sizecategory[] = $sizecategory;
         }
 
         return $this;
     }
 
-    public function removeSizeCategory(SizeCategory $sizeCategory): self
+    public function removeSizecategory(SizeCategory $sizecategory): self
     {
-        if ($this->size_category->contains($sizeCategory)) {
-            $this->size_category->removeElement($sizeCategory);
+        if ($this->sizecategory->contains($sizecategory)) {
+            $this->sizecategory->removeElement($sizecategory);
         }
 
         return $this;
