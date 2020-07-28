@@ -73,7 +73,7 @@ class Artist implements TranslatableInterface
 
     public function getBirth(): ?int
     {
-        return $this->birth_date;
+        return $this->birth;
     }
 
     public function setBirth(?int $birth): self
@@ -90,7 +90,7 @@ class Artist implements TranslatableInterface
 
     public function setDeath(?int $death): self
     {
-        $this->death = $deathe;
+        $this->death = $death;
 
         return $this;
     }
