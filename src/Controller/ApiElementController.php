@@ -56,7 +56,7 @@ class ApiElementController extends Controller
       foreach($dynastys as $dynasty){
         $dynastyIdList[] = $dynasty->getId();
         if( !in_array($dynasty->getId(), $content["dynasty"])) {
-          $entity->removeDynasty($dyn);
+          $entity->removeDynasty($dynasty);
         }
       }
       foreach($content["dynasty"] as $dyn) {
@@ -128,20 +128,17 @@ return $response;
               $dyn = array();
               $dynas =array();
               foreach ($dynasty as $d) {
-                $dyn[$i] = array("id" => $d->getId(), "dyn" => $d->getName());
-                $i++;
-                array_push($dynas, $d->getName());
-
+                $dyn[] = array("id" => $d->getId(), "dyn" => $d->getName());
               }
               $description["dynasty"] = $dyn;
             }
-
     				$elementList[$i] = $description;
     				$i++;
     			}
     		}
 
     		$data = $this->get('jms_serializer')->serialize($elementList, 'json');
+      
     	} else { $data = "enity ".$element." doesn't exist.";}
     	$response = new Response($data);
     	$response->headers->set('Content-Type', 'application/json');

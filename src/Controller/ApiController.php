@@ -20,33 +20,6 @@ class ApiController extends Controller
 {
  protected $languages = array("fr_fr", "en_gb");
 
-   
-
-      /**
-     * @Route("/api/article_add", name="add_article", methods={"POST"})
-     */
-      public function addArticleAction( Request $request)
-      {
-        $content = json_decode($request->getContent(), true);
-
-        if($content) {
-        //
-        //$navigationMenu->translate('en')->setMenuName();
-
-
-        //$entityManager->flush();   
-        } else {
-            $content = "le json est invalide";
-        }
-        $data = $this->get('jms_serializer')->serialize($content, 'json');
-
-        $response = new Response($data);
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
-    }
-
-   
-
     /**
      * @Route("/api/add_discount", name="add_discount", methods={"POST"})
      */
