@@ -71,23 +71,28 @@ class Article implements TranslatableInterface
     private $material;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Size::class, inversedBy="articles")
+     * @ORM\OneToMany(targetEntity=Size::class, mappedBy="article")
      */
-    private $Size;
-
-    /**
-     * @ORM\ManyToMany(targetEntity=Sizecategory::class, inversedBy="articles")
-     */
-    private $sizecategory;
+    private $sizes;
 
     /**
      * @ORM\ManyToMany(targetEntity=Theme::class, inversedBy="articles")
      */
     private $theme;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $smallpicturename;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $bigpicturename;
+
     public function __construct()
     {
-        $this->Size = new ArrayCollection();
+        $this->sizes = new ArrayCollection();
         $this->size_category = new ArrayCollection();
         $this->theme = new ArrayCollection();
     }
@@ -208,15 +213,15 @@ class Article implements TranslatableInterface
     /**
      * @return Collection|Size[]
      */
-    public function getSize(): Collection
+    public function getSizes(): Collection
     {
-        return $this->Size;
+        return $this->sizes;
     }
 
     public function addSize(Size $size): self
     {
-        if (!$this->Size->contains($size)) {
-            $this->Size[] = $size;
+        if (!$this->sizes->contains($size)) {
+            $this->sizes[] = $size;
         }
 
         return $this;
@@ -224,34 +229,8 @@ class Article implements TranslatableInterface
 
     public function removeSize(Size $size): self
     {
-        if ($this->Size->contains($size)) {
-            $this->Size->removeElement($size);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Sizecategory[]
-     */
-    public function getSizecategory(): Collection
-    {
-        return $this->sizecategory;
-    }
-
-    public function addSizecategory(SizeCategory $sizecategory): self
-    {
-        if (!$this->sizecategory->contains($sizecategory)) {
-            $this->sizecategory[] = $sizecategory;
-        }
-
-        return $this;
-    }
-
-    public function removeSizecategory(SizeCategory $sizecategory): self
-    {
-        if ($this->sizecategory->contains($sizecategory)) {
-            $this->sizecategory->removeElement($sizecategory);
+        if ($this->sizes->contains($size)) {
+            $this->sizes->removeElement($size);
         }
 
         return $this;
@@ -279,6 +258,30 @@ class Article implements TranslatableInterface
         if ($this->theme->contains($theme)) {
             $this->theme->removeElement($theme);
         }
+
+        return $this;
+    }
+
+     public function getSmallpicturename(): ?string
+    {
+        return $this->smallpicturename;
+    }
+
+    public function setSmallpicturename(string $smallpicturename): self
+    {
+        $this->smallpicturename = $smallpicturename;
+
+        return $this;
+    }
+
+     public function getBigpicturename(): ?string
+    {
+        return $this->bigpicturename;
+    }
+
+    public function setBigpicturename(string $bigpicturename): self
+    {
+        $this->bigpicturename = $bigpicturename;
 
         return $this;
     }

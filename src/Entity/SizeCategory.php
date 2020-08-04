@@ -29,13 +29,14 @@ class Sizecategory implements TranslatableInterface
     private $placeholder;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Article::class, mappedBy="sizecategory")
+     * @ORM\OneToMany(targetEntity=Size::class, mappedBy="sizecategory")
      */
-    private $articles;
+    private $sizes;
+
 
     public function __construct()
     {
-        $this->articles = new ArrayCollection();
+        $this->sizes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -56,28 +57,28 @@ class Sizecategory implements TranslatableInterface
     }
 
     /**
-     * @return Collection|Article[]
+     * @return Collection|Size[]
      */
-    public function getArticles(): Collection
+    public function getSizes(): Collection
     {
-        return $this->articles;
+        return $this->sizes;
     }
 
-    public function addArticle(Article $article): self
+    public function addSize(Size $size): self
     {
-        if (!$this->articles->contains($article)) {
-            $this->articles[] = $article;
-            $article->addSizeCategory($this);
+        if (!$this->sizes->contains($size)) {
+            $this->sizes[] = $size;
+            $size->addSizes($this);
         }
 
         return $this;
     }
 
-    public function removeArticle(Article $article): self
+    public function removeSize(Size $size): self
     {
-        if ($this->articles->contains($article)) {
-            $this->articles->removeElement($article);
-            $article->removeSizeCategory($this);
+        if ($this->sizes->contains($size)) {
+            $this->sizes->removeElement($size);
+            $size->removeSize($this);
         }
 
         return $this;

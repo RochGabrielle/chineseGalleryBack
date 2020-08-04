@@ -116,6 +116,7 @@ class ApiSimpleTranslationController extends Controller
                 foreach ($placeholders as $element){
                  $translations = array();
                  $translations["placeholder"] = $element->getPlaceholder();
+                 $translations["id"] = $element->getId();
                  foreach ($this->languages as $lang) {
                     $translations[$lang] = $element->translate($lang)->getName();
                 }

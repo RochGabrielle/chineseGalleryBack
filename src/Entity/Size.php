@@ -30,9 +30,14 @@ class Size
     private $width;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Article::class, mappedBy="Size")
+     * @ORM\ManyToOne(targetEntity=Sizecategory::class, inversedBy="sizes")
      */
-    private $articles;
+    private $sizecategory;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Article::class, inversedBy="sizes")
+     */
+    private $article;
 
     public function __construct()
     {
@@ -68,30 +73,26 @@ class Size
         return $this;
     }
 
-    /**
-     * @return Collection|Article[]
-     */
-    public function getArticles(): Collection
+    public function getArticle(): ?Article
     {
-        return $this->articles;
+        return $this->article;
     }
 
-    public function addArticle(Article $article): self
+    public function setArticle(?Article $article): self
     {
-        if (!$this->articles->contains($article)) {
-            $this->articles[] = $article;
-            $article->addSize($this);
-        }
+        $this->article = $article;
 
         return $this;
     }
 
-    public function removeArticle(Article $article): self
+    public function getSizecategory(): ?Sizecategory
     {
-        if ($this->articles->contains($article)) {
-            $this->articles->removeElement($article);
-            $article->removeSize($this);
-        }
+        return $this->sizecategory;
+    }
+
+    public function setSizecategory(?Sizecategory $sizecategory): self
+    {
+        $this->sizecategory = $sizecategory;
 
         return $this;
     }
