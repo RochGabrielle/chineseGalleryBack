@@ -15,7 +15,7 @@ security:
             # target: app_any_route
     firewalls:
         login:
-            pattern:  ^/api/auth/sign
+            pattern:  ^/api/auth/signin
             stateless: true
             anonymous: true
             guard:
@@ -31,7 +31,7 @@ security:
             provider: app_user_provider
             guard:
                 authenticators:
-                    - lexik_jwt_authentication.jwt_token_authenticator
+                    - App\Security\LoginFormAuthenticator
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false

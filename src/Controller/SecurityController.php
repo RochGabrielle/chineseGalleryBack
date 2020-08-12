@@ -27,33 +27,9 @@ class SecurityController extends Controller
     /**
      * @Route("/api/auth/signin", name="app_login")
      */
-    public function login(AuthenticationUtils $authenticationUtils, JWTTokenManagerInterface $JWTManager): Response
+    public function login(AuthenticationUtils $authenticationUtils): Response
     {
-       
-        // try {
-            $user = $this->getUser();
-            var_dump($user->getEmail());
-            die();
-      //  } catch (\CustomUserMessageAuthenticationException $e) {
-      //      $response = new Response("authentification failed");
-      //      $response->headers->set('Content-Type', 'application/json');
-      //      return $response;
-      //  }
-        $error = $authenticationUtils->getLastAuthenticationError();
-        if (null !== $error) {
-            die('dans error');
-            $response = $error->getMessageKey();
-
-        } else {
-            die('après error');
-            $response = array( "email" => $user->getEmail(),
-                               "pseudo" => $user->getPseudo());
-            var_dump($response);
-            die();
-            $token = ['token' => $JWTManager->create($user)];
-        }
-        
-        $response = new Response(json_encode($response));
+        $response = new Response("signing in");
             $response->headers->set('Content-Type', 'application/json');
             return $response;
             
@@ -88,8 +64,7 @@ class SecurityController extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $entity = $entityManager->getRepository($entityClass)->findOneByEmail($content["email"]);
         if( null == $entity ) {
-          $newUser = new $entityClass();
-          $newUser->setEmail($content["email"]);
+          $newUser = new $entityClass($content["email"]);
           $newUser->setPassword($this->passwordEncoder->encodePassword(
            $newUser,
            $content["password"]
