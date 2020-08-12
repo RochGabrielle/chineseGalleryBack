@@ -22,12 +22,12 @@ class ApiArticleController extends Controller
  protected $languages = array("fr_fr", "en_gb");
 
     /**
-     * @Route("/api/add_article", name="add_article", methods={"POST"})
+     * @Route("/api/admin/add_article", name="add_article", methods={"POST"})
      */
     public function addArticleAction( Request $request)
     {
       $content = $request->request;
-$toto = "avant la boucle";
+
       if ((null !==$content->get('title')) && (null !==$content->get("birth")) && (null !==$content->get('price')) && (null !==$content->get("category"))) {
         $entityClass = 'App\Entity\Article';
 
@@ -40,7 +40,7 @@ $toto = "avant la boucle";
           $entity->setReference($content->get('title'));
         }
         $this->updateEntity($entity, "birth", $content->get("birth"));
-        $toto = $this->updateEntity($entity, "price", $content->get("price"));
+        $this->updateEntity($entity, "price", $content->get("price"));
         $this->updateEntityWithEntity($entity, "category", $content->get("category"), $entityManager);
         $this->updateEntityWithEntity($entity, "material", $content->get("material"), $entityManager); 
         $this->updateEntityWithEntity($entity, "artist", $content->get("artist"), $entityManager); 
@@ -58,7 +58,6 @@ $toto = "avant la boucle";
       } else {
         $responseMessage = "The Json is invalid";
       }
-      $data = $this->get('jms_serializer')->serialize($responseMessage, 'json');
 
       $data = $this->get('jms_serializer')->serialize($responseMessage, 'json');
 
@@ -167,7 +166,7 @@ return $response;
 }
 
     /**
-     * @Route("/api/uploadFile", name="upload_one_file", methods={"POST"})
+     * @Route("/api/admin/uploadFile", name="upload_one_file", methods={"POST"})
      */
 public function uploadOneFile (Request $request)
     {
@@ -196,7 +195,6 @@ public function updateEntity( Object $entityToUpdate, string $entityName, string
   if((null == $entityToUpdate->$getter()) || ($entityToUpdate->$getter() !== $content)) {
    $entityToUpdate->$setter($content);
  }
- return $toto;
 }
 
 public function updateEntityWithEntity( Object $entityToUpdate, string $entityName, string $content, Object $entityManager) {

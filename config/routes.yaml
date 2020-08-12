@@ -1,3 +1,7 @@
 mountain_moon:
     path: /mountainmoon
     controller: App\Controller\MountainMoonController::number
+
+logout:
+    path: /logout
+

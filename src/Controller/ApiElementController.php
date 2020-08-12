@@ -15,7 +15,7 @@ class ApiElementController extends Controller
 	protected $languages = array("fr_fr", "en_gb");
 
   /**
-     * @Route("/api/add_element", name="add_element", methods={"POST"})
+     * @Route("/api/admin/add_element", name="add_element", methods={"POST"})
      */
   public function addElementAction( Request $request)
   {

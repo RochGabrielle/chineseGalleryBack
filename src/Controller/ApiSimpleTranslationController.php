@@ -18,7 +18,7 @@ class ApiSimpleTranslationController extends Controller
  protected $languages = array("fr_fr", "en_gb");
 
  /**
-     * @Route("/api/translation_add", name="add_translation", methods={"POST"})
+     * @Route("/api/admin/translation_add", name="add_translation", methods={"POST"})
      */
     public function addTranslationAction( Request $request)
     {

@@ -90,11 +90,27 @@ class Article implements TranslatableInterface
      */
     private $bigpicturename;
 
+    /**
+     * @ORM\ManyToMany(targetEntity=User::class, mappedBy="favourites")
+     */
+    private $users;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Museum::class, mappedBy="OneToOne", cascade={"persist", "remove"})
+     */
+    private $museum;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $status;
+
     public function __construct()
     {
         $this->sizes = new ArrayCollection();
         $this->size_category = new ArrayCollection();
         $this->theme = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -282,6 +298,64 @@ class Article implements TranslatableInterface
     public function setBigpicturename(string $bigpicturename): self
     {
         $this->bigpicturename = $bigpicturename;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->addFavourite($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if ($this->users->contains($user)) {
+            $this->users->removeElement($user);
+            $user->removeFavourite($this);
+        }
+
+        return $this;
+    }
+
+    public function getMuseum(): ?Museum
+    {
+        return $this->museum;
+    }
+
+    public function setMuseum(?Museum $museum): self
+    {
+        $this->museum = $museum;
+
+        // set (or unset) the owning side of the relation if necessary
+        $newOneToOne = null === $museum ? null : $this;
+        if ($museum->getOneToOne() !== $newOneToOne) {
+            $museum->setOneToOne($newOneToOne);
+        }
+
+        return $this;
+    }
+
+    public function getStatus(): ?int
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?int $status): self
+    {
+        $this->status = $status;
 
         return $this;
     }
