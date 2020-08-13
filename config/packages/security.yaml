@@ -21,17 +21,14 @@ security:
             guard:
                 authenticators:
                     - App\Security\LoginFormAuthenticator
-        #    json_login:
-        #        check_path:               /api/auth/signin
-        #        success_handler:          lexik_jwt_authentication.handler.authentication_success
-        #        failure_handler:          lexik_jwt_authentication.handler.authentication_failure
         api:
-            pattern:   ^/api/toto
+            pattern:   ^/api/admin/
             stateless: true
             provider: app_user_provider
             guard:
                 authenticators:
-                    - App\Security\LoginFormAuthenticator
+                    - App\Security\ApiTokenAuthenticator
+                entry_point: App\Security\LoginFormAuthenticator
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
@@ -43,8 +40,8 @@ security:
         #            - App\Security\ApiAuthenticator
 
             logout:
-                path:   /logout
-                target: /
+                path:   app_logout
+             #   target: /
 
                 # where to redirect after logout
                 # target: app_any_route

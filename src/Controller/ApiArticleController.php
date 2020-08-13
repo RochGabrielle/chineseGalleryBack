@@ -15,6 +15,7 @@ use App\Entity\Theme;
 use App\Entity\Sizecategory;
 use App\Entity\Article;
 use App\Entity\Size;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 
 class ApiArticleController extends Controller
@@ -22,6 +23,7 @@ class ApiArticleController extends Controller
  protected $languages = array("fr_fr", "en_gb");
 
     /**
+     * @IsGranted("ROLE_ADMIN")
      * @Route("/api/admin/add_article", name="add_article", methods={"POST"})
      */
     public function addArticleAction( Request $request)
@@ -68,7 +70,7 @@ class ApiArticleController extends Controller
 
 
     /**
-     * @Route("/api/articlelist", name="get_article_list", methods={"GET"})
+     * @Route("/api/admin/articlelist", name="get_article_list", methods={"GET"})
      */
     public function getArticleListAction()
     {

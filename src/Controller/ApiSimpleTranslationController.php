@@ -99,7 +99,7 @@ class ApiSimpleTranslationController extends Controller
 
 
     /**
-     * @Route("/api/translationlist/{entity}", name="get_translation_list", methods={"GET"})
+     * @Route("/api/admin/translationlist/{entity}", name="get_translation_list", methods={"GET"})
      */
     public function getTranslationListAction( string $entity )
     {
