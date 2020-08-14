@@ -70,7 +70,7 @@ class ApiArticleController extends Controller
 
 
     /**
-     * @Route("/api/admin/articlelist", name="get_article_list", methods={"GET"})
+     * @Route("/api/articlelist", name="get_article_list", methods={"GET"})
      */
     public function getArticleListAction()
     {
