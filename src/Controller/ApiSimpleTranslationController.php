@@ -11,11 +11,11 @@ use App\Entity\Material;
 use App\Entity\Category;
 use App\Entity\Theme;
 use App\Entity\Sizecategory;
+use App\Service\ListGetter;
 
 
 class ApiSimpleTranslationController extends Controller
 {
- protected $languages = array("fr_fr", "en_gb");
 
  /**
      * @Route("/api/admin/translation_add", name="add_translation", methods={"POST"})
@@ -29,7 +29,7 @@ class ApiSimpleTranslationController extends Controller
 
                 $entityManager = $this->getDoctrine()->getManager();
                 $entity = $entityManager->getRepository($entityClass)->findOneByPlaceholder($content["placeholder"]);
-                $langs =array_values($this->languages);
+                $langs =$this->getParameter('languages');
 
                 if ($entity) {
                     $i = 0;
@@ -44,7 +44,7 @@ class ApiSimpleTranslationController extends Controller
                 } else {
                     $entity = new $entityClass();
                     $entity->setPlaceholder($content["placeholder"]);
-                    foreach($this->languages as $lang) {
+                    foreach($this->getParameter('languages') as $lang) {
                         $entity->translate($lang)->setName($content[$lang]);
                         $entity->mergeNewTranslations();
                         $responseMsessage = "new ".$content["entity"]." created.";
@@ -99,9 +99,9 @@ class ApiSimpleTranslationController extends Controller
 
 
     /**
-     * @Route("/api/admin/translationlist/{entity}", name="get_translation_list", methods={"GET"})
+     * @Route("/api/admin/translationlist/{entity}/{simple}", name="get_translation_list", methods={"GET"})
      */
-    public function getTranslationListAction( string $entity )
+    public function getTranslationListAction( string $entity, string $simple, ListGetter $listGetter )
     {
         $entityClass = 'App\Entity\\'.ucfirst($entity);
 
@@ -109,62 +109,13 @@ class ApiSimpleTranslationController extends Controller
             $entityManager = $this->getDoctrine()->getManager();
 
             $placeholders = $entityManager->getRepository($entityClass)->findAll();
+            $cond = $simple == "true" ? true : false;
 
-            $translationList = array();
-            if( !empty($placeholders)) {
-                $i =0;
-                foreach ($placeholders as $element){
-                 $translations = array();
-                 $translations["placeholder"] = $element->getPlaceholder();
-                 $translations["id"] = $element->getId();
-                 foreach ($this->languages as $lang) {
-                    $translations[$lang] = $element->translate($lang)->getName();
-                }
-
-                $translationList[$i] = $translations;
-                $i++;
-            }
-        }
-
-           //$data = $this->get('jms_serializer')->serialize($translations, 'json');
-          // $data = json_encode($translationList) ;
-        $data = $this->get('jms_serializer')->serialize($translationList, 'json');
+        $data = $this->get('jms_serializer')->serialize($listGetter->getList($placeholders, $this->getParameter('languages'), $cond), 'json');
     } else { $data = "enity ".$element." doesn't exist.";}
     $response = new Response($data);
     $response->headers->set('Content-Type', 'application/json');
     return $response;
-}
-
-/**
-     * @Route("/api/simpleElementList/{entity}", name="get_simple_element_list", methods={"GET"})
-     */
-    public function getSimpleElementListAction( string $entity )
-    {
-    	$entityClass = 'App\Entity\\'.ucfirst($entity);
-
-    	if (class_exists($entityClass)) {
-    		$entityManager = $this->getDoctrine()->getManager();
-
-    		$elements = $entityManager->getRepository($entityClass)->findAll();
-        $elementList  = array();
-        $i = 0;
-        if($elements) {
-         foreach($elements as $element) {
-           $elem = array(
-            "id" =>$element->getId(),
-            "name" => $element->getName());
-           $elementList[$i] = $elem;
-           $i++;
-         }
-       }
-
-       $data = $this->get('jms_serializer')->serialize($elementList, 'json');
-     } else {
-      $data = "this element doesn't exist";
-    }
-    $response = new Response($data);
-    $response->headers->set('Content-Type', 'application/json');
-    return $response;
-  }
+}   
 
 }

@@ -4,12 +4,15 @@ namespace App\Entity;
 
 use App\Repository\MuseumRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Knp\DoctrineBehaviors\Contract\Entity\TranslatableInterface;
+use Knp\DoctrineBehaviors\Model\Translatable\TranslatableTrait;
 
 /**
  * @ORM\Entity(repositoryClass=MuseumRepository::class)
  */
-class Museum
+class Museum implements TranslatableInterface
 {
+    use TranslatableTrait;
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -20,12 +23,17 @@ class Museum
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private $placeholder;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $link;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $linkname;
 
     /**
      * @ORM\OneToOne(targetEntity=Article::class, inversedBy="museum", cascade={"persist", "remove"})
@@ -37,14 +45,14 @@ class Museum
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getPlaceholder(): ?string
     {
-        return $this->name;
+        return $this->placeholder;
     }
 
-    public function setName(string $name): self
+    public function setPlaceholder(string $placeholder): self
     {
-        $this->name = $name;
+        $this->placeholder = $placeholder;
 
         return $this;
     }
@@ -57,6 +65,18 @@ class Museum
     public function setLink(?string $link): self
     {
         $this->link = $link;
+
+        return $this;
+    }
+
+    public function getLinkname(): ?string
+    {
+        return $this->linkname;
+    }
+
+    public function setLinkname(?string $linkname): self
+    {
+        $this->linkname = $linkname;
 
         return $this;
     }

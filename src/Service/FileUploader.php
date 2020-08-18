@@ -4,14 +4,16 @@ namespace App\Service;
 
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Doctrine\ORM\EntityManagerInterface;
 
 class FileUploader
 {
     private $targetDirectory;
 
-    public function __construct($targetDirectory)
+    public function __construct($targetDirectory, EntityManagerInterface $em )
     {
         $this->targetDirectory = $targetDirectory;
+        $this->em = $em;
     }
 
     public function upload(UploadedFile $file)
@@ -33,4 +35,19 @@ class FileUploader
     {
         return $this->targetDirectory;
     }
+
+    public function uploadImage(Object $entity, $file, $size) {
+  if( null !== $file) {
+        $dir = './images';
+        $imageName = str_replace(' ', '', $entity->getTitle());
+        $fileName = $imageName.$size.'.'.$file->guessClientExtension();
+        $setter = 'set'.$size.'picturename';
+         try {
+            $file->move($dir, $fileName);
+        } catch (FileException $e) {
+            // ... handle exception if something happens during file upload
+        }
+        $entity->$setter($fileName);
+      }
+}
 }

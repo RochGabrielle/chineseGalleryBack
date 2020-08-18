@@ -39,13 +39,12 @@ class Article implements TranslatableInterface
     private $birth;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="float", nullable=true)
      */
     private $price;
 
     /**
      * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="articles")
-     * @ORM\JoinColumn(nullable=false)
      */
     private $category;
 
@@ -66,7 +65,6 @@ class Article implements TranslatableInterface
 
     /**
      * @ORM\ManyToOne(targetEntity=Material::class, inversedBy="articles")
-     * @ORM\JoinColumn(nullable=false)
      */
     private $material;
 
@@ -81,12 +79,12 @@ class Article implements TranslatableInterface
     private $theme;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $smallpicturename;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $bigpicturename;
 

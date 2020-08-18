@@ -8,11 +8,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Artist;
 use App\Entity\Dynasty;
+use App\Service\ListGetter;
 
 
 class ApiElementController extends Controller
 {
-	protected $languages = array("fr_fr", "en_gb");
 
   /**
      * @Route("/api/admin/add_element", name="add_element", methods={"POST"})
@@ -23,6 +23,7 @@ class ApiElementController extends Controller
     $dynastyEntity = 'App\Entity\Dynasty';
 
     if (isset($content["name"]) && 
+      isset($content["name_cn"]) && 
       isset($content["birth"]) && 
       isset($content["death"]) && 
       isset($content["en_gb"]) &&
@@ -43,7 +44,7 @@ class ApiElementController extends Controller
      if($entity->getDeath($content["death"])!=  $content["death"] ) {
        $entity->setDeath($content["death"]);
      }
-     foreach($this->languages as $lang) {
+     foreach($this->getParameter('languages') as $lang) {
        if(empty($entity->translate($lang)->getDescription()) || ($entity->translate($lang)->getDescription() != $content[$lang]) ) {
         $entity->translate($lang)->setDescription($content[$lang]);
         $entity->mergeNewTranslations();
@@ -73,9 +74,10 @@ class ApiElementController extends Controller
     $entity->setName($content["name"]);
     $entity->setBirth($content["birth"]);
     $entity->setDeath($content["death"]);
-    foreach($this->languages as $lang) {
+    foreach($this->getParameter('languages') as $lang) {
      $entity->translate($lang)->setDescription($content[$lang]);
    }
+   $entity->translate('cn_cn')->setDescription($content["name_cn"]);
    $entity->mergeNewTranslations();
    if($content["entity"] == "artist"){
     foreach($content["dynasty"] as $dyn) {
@@ -121,6 +123,7 @@ return $response;
     				foreach ($this->languages as $lang) {
     					$description[$lang] = $element->translate($lang)->getDescription();
     				}
+            $description["name_cn"] = $element->translate("cn_cn")->getName();
 
          
             if($entity == "artist") {
@@ -166,4 +169,24 @@ return $response;
     	$response->headers->set('Content-Type', 'application/json');
     	return $response;
     }
+
+    /**
+     * @Route("/api/simpleElementList/{entity}", name="get_simple_element_list", methods={"GET"})
+     */
+    public function getSimpleElementListAction( string $entity, ListGetter $listGetter )
+    {
+      $entityClass = 'App\Entity\\'.ucfirst($entity);
+
+      if (class_exists($entityClass)) {
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $elements = $entityManager->getRepository($entityClass)->findAll();
+       $data = $listGetter->getList($elements);
+     } else {
+      $data = "this element doesn't exist";
+    }
+    $response = new Response($data);
+    $response->headers->set('Content-Type', 'application/json');
+    return $response;
+  }
 }

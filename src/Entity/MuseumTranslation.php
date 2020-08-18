@@ -2,18 +2,17 @@
 
 namespace App\Entity;
 
-use App\Repository\ArtistTranslationRepository;
+use App\Repository\MuseumTranslationRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Knp\DoctrineBehaviors\Contract\Entity\TranslationInterface;
 use Knp\DoctrineBehaviors\Model\Translatable\TranslationTrait;
 
 /**
- * @ORM\Entity(repositoryClass=ArtistTranslationRepository::class)
+ * @ORM\Entity(repositoryClass=MuseumTranslationRepository::class)
  */
-class ArtistTranslation implements TranslationInterface
+class MuseumTranslation implements TranslationInterface
 {
     use TranslationTrait;
-    
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -22,31 +21,13 @@ class ArtistTranslation implements TranslationInterface
     private $id;
 
     /**
-     * @ORM\Column(type="text")
-     */
-    private $description;
-
-    /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="string", length=255)
      */
     private $name;
-
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $description): self
-    {
-        $this->description = $description;
-
-        return $this;
     }
 
     public function getName(): ?string

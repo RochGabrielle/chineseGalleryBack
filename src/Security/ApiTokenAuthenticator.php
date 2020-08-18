@@ -8,6 +8,7 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use App\Repository\ApiTokenRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 
 class ApiTokenAuthenticator extends AbstractGuardAuthenticator
 {

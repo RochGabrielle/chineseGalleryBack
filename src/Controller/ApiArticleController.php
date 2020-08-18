@@ -16,46 +16,60 @@ use App\Entity\Sizecategory;
 use App\Entity\Article;
 use App\Entity\Size;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use App\Service\EntityUpdater;
+use App\Service\StatusUpdater;
+
 
 
 class ApiArticleController extends Controller
 {
- protected $languages = array("fr_fr", "en_gb");
+  public function __construct(EntityManagerInterface $em) {
+        $this->em = $em;
+    }
 
     /**
      * @IsGranted("ROLE_ADMIN")
      * @Route("/api/admin/add_article", name="add_article", methods={"POST"})
      */
-    public function addArticleAction( Request $request)
+    public function addArticleAction( Request $request, EntityUpdater $entityUpdater, FileUploader $fileUploader)
     {
       $content = $request->request;
 
-      if ((null !==$content->get('title')) && (null !==$content->get("birth")) && (null !==$content->get('price')) && (null !==$content->get("category"))) {
+      if ((null !==$content->get('title')) ) {
         $entityClass = 'App\Entity\Article';
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $entity = $entityManager->getRepository($entityClass)->findOneByTitle($content->get("title"));
-
+        
+        $entity = $this->em->getRepository($entityClass)->findOneByTitle($content->get("title"));
         if (null == $entity) {
           $entity = new $entityClass();
           $entity->setTitle($content->get('title'));
           $entity->setReference($content->get('title'));
+          $entity->setStatus('1');
         }
-        $this->updateEntity($entity, "birth", $content->get("birth"));
-        $this->updateEntity($entity, "price", $content->get("price"));
-        $this->updateEntityWithEntity($entity, "category", $content->get("category"), $entityManager);
-        $this->updateEntityWithEntity($entity, "material", $content->get("material"), $entityManager); 
-        $this->updateEntityWithEntity($entity, "artist", $content->get("artist"), $entityManager); 
-        $this->updateEntityWithEntity($entity, "dynasty", $content->get("dynasty"), $entityManager); 
-        $this->updateEntityWithEntity($entity, "discount", $content->get("discount"), $entityManager); 
-        $this->updateEntityWithSizeSizeCategory($entity, $content->get("sizes"), $entityManager);
-        $this->updateEntityWithDescription($entity, $content, $entityManager);
+        $entityUpdater->updateEntity($entity, "birth", $content->get("birth"));
+        $entityUpdater->updateEntity($entity, "price", $content->get("price"));
 
-        $this->uploadImage($entity, $request->files->get('smallImage'),$entityManager,'small');
-        $this->uploadImage($entity, $request->files->get('bigImage'),$entityManager,'big');
+        $entitytoUpdate = array("category", "material", "dynasty", "discount", "museum");
+        foreach ($entitytoUpdate as $etu) {
+          $entityUpdater->updateEntityWithEntity($entity, $etu, $content->get($etu));
+        }
+       // $entityUpdater->updateEntityArrayWithEntity($entity, "theme", $content->get("theme"), $entityManager);
+               
+        $entityUpdater->updateEntityWithSizeSizeCategory($entity, $content->get("sizes"));
 
-        $entityManager->persist($entity);
-        $entityManager->flush();        
+        $translationToUpdate = array("description");
+        foreach($translationToUpdate as $ttu) {
+          $entityUpdater->updateEntityWithField($entity, $content, $this->getParameter('languages'), $ttu);
+        }
+        $entityUpdater->updateArticleWithTitle($entity, $content, $this->getParameter('languages'));
+        if(!empty($request->files->get('smallImage'))) {
+          $fileUploader->uploadImage($entity, $request->files->get('smallImage'),'small');
+        }
+        if(!empty($request->files->get('bigImage'))) {
+        $fileUploader->uploadImage($entity, $request->files->get('bigImage'),'big');
+      }
+        $this->em->persist($entity);
+        $this->em->flush();        
         $responseMessage = "the article has been added";
       } else {
         $responseMessage = "The Json is invalid";
@@ -77,21 +91,22 @@ class ApiArticleController extends Controller
       $entityClass = 'App\Entity\Article';
 
       if (class_exists($entityClass)) {
-        $entityManager = $this->getDoctrine()->getManager();
 
-        $articles = $entityManager->getRepository($entityClass)->findAll();
+        $articles = $this->em->getRepository($entityClass)->findAll();
 
         $articleList = array();
         if( !empty($articles)) {
           $i =0;
           foreach ($articles as $element){
            $article = array();
+           $article["id"] = $element->getId();
            $article["title"] = $element->getTitle();
            $article["birth"] = $element->getBirth();
            $article["price"] = $element->getPrice();
+           $article["status"] = $element->getStatus();
            $article["smallimage"] = $element->getSmallpicturename();
            $article["bigimage"] = $element->getBigpicturename();
-           foreach ($this->languages as $lang) {
+           foreach ($this->getParameter('languages') as $lang) {
             $article[$lang] = $element->translate($lang)->getDescription();
           }
           $simpleElementToReturn = array("category", "material","discount");
@@ -135,45 +150,79 @@ class ApiArticleController extends Controller
   }
 
 
- /**
-     * @Route("/api/articleGalleryList/{lang}", name="get_gallery_list", methods={"GET"})
+    /**
+     * @Route("/api/gallery/{type}/{lang}", name="get_gallery", methods={"GET"})
      */
-public function getSimpleArticleListAction( string $lang ) 
-{
- $entityClass = 'App\Entity\Article';
+    public function getArticleGalleryAction($type, $lang)
+    {
+      $entityClass = 'App\Entity\Article';
+      $page = '';
+      if($type == "gallery") {
+        $page = 1;
+      } elseif ($type == "main"){
+        $page = 2;
+      }
 
- if (class_exists($entityClass)) {
-  $entityManager = $this->getDoctrine()->getManager();
+        $articles = $this->em->getRepository($entityClass)->findByStatus($page);
 
-  $elements = $entityManager->getRepository($entityClass)->findAll();
-  $elementList  = array();
-  $i = 0;
-  if($elements) {
-   foreach($elements as $element) {
-     $elem = array(
-      "id" =>$element->getId(),
-      "name" => $element->getName());
-     $elementList[$i] = $elem;
-     $i++;
-   }
- }
+        $articleList = array();
+        if( !empty($articles)) {
+          $i =0;
+          foreach ($articles as $element){
+           $article = array();
+           $article["id"] = $element->getId();
+           $article["title"] = $element->getTitle();
+           $article["birth"] = $element->getBirth();
+           $article["price"] = $element->getPrice();
+           $article["status"] = $element->getStatus();
+           $article["smallimage"] = $element->getSmallpicturename();
+           $article["bigimage"] = $element->getBigpicturename();
+           
+          $article[$lang] = $element->translate($lang)->getDescription();
+          $article["title_cn"] = $element->translate("cn_cn")->getTitle();
+          $simpleElementToReturn = array("category", "material","discount");
 
- $data = $this->get('jms_serializer')->serialize($elementList, 'json');
-} else {
-  $data = "this element doesn't exist";
-}
-$response = new Response($data);
-$response->headers->set('Content-Type', 'application/json');
-return $response;
-}
+          foreach($simpleElementToReturn as $item) {
+            $getter = "get".ucfirst($item);
+            if( null !== $element->$getter()) {
+            $article[$item][] = array("id" => $element->$getter()->getId(), "placeholder" => $element->$getter()->getPlaceholder());
+          }
+          }
+          $simpleArtistDynastyToReturn = array("artist", "dynasty");
+          foreach($simpleArtistDynastyToReturn as $item) {
+            $getter = "get".ucfirst($item);
+            if( null !== $element->$getter()) {
+            $article[$item][] = array("id" => $element->$getter()->getId(), "name" => $element->$getter()->getName());
+          }
+          }
+
+
+          $sizes = $element->getSizes();
+          foreach($sizes as $s) {
+            $article["sizes"][] = array("id" => $s->getId(), 
+              "width" => $s->getWidth(),
+              "length" => $s->getLength(),
+              "sizecategory" => array("id" => $s->getSizecategory()->getId(),
+                "placeholder" =>  $s->getSizecategory()->getPlaceholder()));
+          }
+
+
+          $articleList[] = $article;
+        }
+      }
+      $data = $this->get('jms_serializer')->serialize($articleList, 'json');
+   
+    $response = new Response($data);
+    $response->headers->set('Content-Type', 'application/json');
+    return $response;
+  }
+
 
     /**
      * @Route("/api/admin/uploadFile", name="upload_one_file", methods={"POST"})
      */
 public function uploadOneFile (Request $request)
     {
-        
-
         $article_id = $request->get('article_id');
         var_dump($article_id);
         die();
@@ -187,114 +236,17 @@ $response->headers->set('Content-Type', 'application/json');
 return $response;
     }
 
-
-    
-
-public function updateEntity( Object $entityToUpdate, string $entityName, string $content) {
-  $getter = 'get'.ucfirst($entityName);
-  $setter = 'set'.ucfirst($entityName);
-  $toto = " je suis dans la boucle ".$entityToUpdate->$getter()." ".$content;
-  if((null == $entityToUpdate->$getter()) || ($entityToUpdate->$getter() !== $content)) {
-   $entityToUpdate->$setter($content);
- }
-}
-
-public function updateEntityWithEntity( Object $entityToUpdate, string $entityName, string $content, Object $entityManager) {
-
-  $entityClass = 'App\Entity\\'.ucfirst($entityName);
-  $entity = $entityManager->getRepository($entityClass)->findOneById($content);
-  $getter = 'get'.ucfirst($entityName);
-  $setter = 'set'.ucfirst($entityName);
-  if((null == $entityToUpdate->$getter()) || ($entityToUpdate->$getter() !== $entity)) {
-    $entityToUpdate->$setter($entity);
-  }
-}
-
-public function updateEntityWithSizeSizeCategory( Object $entityToUpdate, $sizes, Object $entityManager) {
-
-  $sizeClass = 'App\Entity\Size';
-  $sizecategoryClass = 'App\Entity\Sizecategory';
-  $articleSizes = $entityToUpdate->getSizes();
-  $sizes = json_decode ($sizes, true);
-  if( null == $articleSizes) {
-    foreach($sizes as $size) {
-      $s = new $sizeClass();
-      $s->setLength($size["length"]);
-      $s->setWidth($size["width"]);
-      $s->setSizecategory($entityManager->getRepository($sizecategoryClass)->findOneById($size["sizecategoryId"]));
-      $entityManager->persist($s);
-      $entityToUpdate->addSize($s);
-
-    }
-  } else {
-    $articleSizeId = array();
-    $sizeId = array();
-    foreach($sizes as $size) {
-      $sizeId[] = $size["sizecategoryId"];
-    }
-    foreach($articleSizes as $as) {
-      if(!in_array($as->getId(),$sizeId)) {
-        $entityToUpdate->removeSize($as);
-      } else { 
-        foreach($sizes as $s ) {
-          if(isset($s['sizeId']) && $s['sizeId'] == $as->getId()){
-            $as->setLength($s['length']);
-            $as->setWidth($s['width']);
-            $as->setSizecategory($entityManager->getRepository($sizecategoryClass)->findOneById($s["sizecategoryId"]));
-          }
-        }
-
-      }
-      $articleSizeId[] = $as->getId();
-    }
-    foreach($sizes as $size) {
-      if( !in_array($size['sizeId'], $articleSizeId) || $size['sizeId'] == 0) {
-        $s = new $sizeClass();
-        $s->setLength($size["length"]);
-        $s->setWidth($size["width"]);
-        $s->setSizecategory($entityManager->getRepository($sizecategoryClass)->findOneById($size["sizecategoryId"]));
-        $entityManager->persist($s);
-        $entityToUpdate->addSize($s);
-      }
+    /**
+     * @IsGranted("ROLE_ADMIN")
+     * @Route("/api/admin/status", name="update_status", methods={"POST"})
+     */
+    public function updateStatusAction( Request $request, StatusUpdater $statusUpdater)
+    {
+      $statusUpdater->updateStatus($request);
+      $response = new Response("status has been updated");
+      $response->headers->set('Content-Type', 'application/json');
+      return $response;
     }
 
-  }
-
-}
-
-public function updateEntityWithDescription( Object $entityToUpdate, Object $translations, Object $entityManager) {
-  foreach($this->languages as $lang) {
-   if(empty($entityToUpdate->translate($lang)->getDescription()) || ($entityToUpdate->translate($lang)->getDescription() != $translations->get($lang) )) {
-    $entityToUpdate->translate($lang)->setDescription($translations->get($lang));
-    $entityToUpdate->mergeNewTranslations();
-  }
-}
-}
-
-
-
-public function getSimpleElement( Object $entity, Array $entityInfo, Array $returnedInfoList) {
-  foreach($entityInfo as $item) {
-    $getter = "get".ucfirst($item);
-    $returnedInfoList[$item][] = array("id" => $entity->$getter()->getId(), "placeholder" => $entity->$getter()->getPlaceholder());
-  }
-  return $returnedInfoList;
-  
-}
-
-public function uploadImage(Object $entity, $file, $entityManager, $size) {
-  if( null !== $file) {
-        $dir = './images';
-        $imageName = str_replace(' ', '', $entity->getTitle());
-        $fileName = $imageName.$size.'.'.$file->guessClientExtension();
-        $setter = 'set'.$size.'picturename';
-         try {
-            $file->move($dir, $fileName);
-        } catch (FileException $e) {
-            // ... handle exception if something happens during file upload
-        }
-        $entity->$setter($fileName);
-      }
-}
 
 }

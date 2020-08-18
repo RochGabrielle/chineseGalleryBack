@@ -26,6 +26,11 @@ class ArticleTranslation implements TranslationInterface
      */
     private $description;
 
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $title;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -39,6 +44,18 @@ class ArticleTranslation implements TranslationInterface
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
 
         return $this;
     }
