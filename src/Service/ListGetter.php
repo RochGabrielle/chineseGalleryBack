@@ -5,7 +5,7 @@ namespace App\Service;
 
 class ListGetter
 {
-	public function getList( $arrayOfObjects, array $arrayOfLanguages, bool $simple = false ) {
+	public function getList( $arrayOfObjects, array $arrayOfLanguages, bool $simple = false, string $entityName = '' ) {
 
 	  $list = array();
             if( !empty($arrayOfObjects)) {
@@ -20,6 +20,14 @@ class ListGetter
                     foreach ($arrayOfLanguages as $lang) {
                         $secondaryList[$lang] = (method_exists($element->translate($lang),'getName'))?$element->translate($lang)->getName():$element->translate($lang)->getDescription() ;
                         }
+                }
+                // if it s a theme, the media is returned aswell
+                if($entityName == 'theme' ) {
+                    if( null !== $element->getMedia()) {
+                    $secondaryList["media"] = $element->getMedia()->getPlaceholder();
+                    $secondaryList["mediaId"] = $element->getMedia()->getId();
+                }
+
                 }
                 $list[$i] = $secondaryList;
                 $i++;

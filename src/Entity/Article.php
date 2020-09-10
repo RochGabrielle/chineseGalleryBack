@@ -81,12 +81,12 @@ class Article implements TranslatableInterface
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $smallpicturename;
+    private $small;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $bigpicturename;
+    private $big;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="favourites")
@@ -94,7 +94,7 @@ class Article implements TranslatableInterface
     private $users;
 
     /**
-     * @ORM\OneToOne(targetEntity=Museum::class, mappedBy="OneToOne", cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity=Museum::class, inversedBy="articles")
      */
     private $museum;
 
@@ -276,26 +276,26 @@ class Article implements TranslatableInterface
         return $this;
     }
 
-     public function getSmallpicturename(): ?string
+     public function getSmall(): ?string
     {
-        return $this->smallpicturename;
+        return $this->small;
     }
 
-    public function setSmallpicturename(string $smallpicturename): self
+    public function setSmall(string $small): self
     {
-        $this->smallpicturename = $smallpicturename;
+        $this->small = $small;
 
         return $this;
     }
 
-     public function getBigpicturename(): ?string
+     public function getBig(): ?string
     {
-        return $this->bigpicturename;
+        return $this->big;
     }
 
-    public function setBigpicturename(string $bigpicturename): self
+    public function setBig(string $big): self
     {
-        $this->bigpicturename = $bigpicturename;
+        $this->big = $big;
 
         return $this;
     }
@@ -336,14 +336,8 @@ class Article implements TranslatableInterface
     public function setMuseum(?Museum $museum): self
     {
         $this->museum = $museum;
-
-        // set (or unset) the owning side of the relation if necessary
-        $newOneToOne = null === $museum ? null : $this;
-        if ($museum->getOneToOne() !== $newOneToOne) {
-            $museum->setOneToOne($newOneToOne);
-        }
-
         return $this;
+
     }
 
     public function getStatus(): ?int

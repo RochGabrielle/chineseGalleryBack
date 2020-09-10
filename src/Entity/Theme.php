@@ -33,6 +33,11 @@ class Theme implements TranslatableInterface
      */
     private $articles;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Media::class, inversedBy="themes")
+     */
+    private $media;
+
     public function __construct()
     {
         $this->articles = new ArrayCollection();
@@ -79,6 +84,18 @@ class Theme implements TranslatableInterface
     public function setPlaceholder(string $placeholder): self
     {
         $this->placeholder = $placeholder;
+
+        return $this;
+    }
+
+    public function getMedia(): ?Media
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?Media $media): self
+    {
+        $this->media = $media;
 
         return $this;
     }

@@ -36,12 +36,12 @@ class FileUploader
         return $this->targetDirectory;
     }
 
-    public function uploadImage(Object $entity, $file, $size) {
+    public function uploadImage(Object $entity, $file, $name_extension) {
   if( null !== $file) {
         $dir = './images';
         $imageName = str_replace(' ', '', $entity->getTitle());
-        $fileName = $imageName.$size.'.'.$file->guessClientExtension();
-        $setter = 'set'.$size.'picturename';
+        $fileName = $imageName.'_'.$entity->getId().'_'.$name_extension.'.'.$file->guessClientExtension();
+        $setter = 'set'.ucfirst($name_extension);
          try {
             $file->move($dir, $fileName);
         } catch (FileException $e) {

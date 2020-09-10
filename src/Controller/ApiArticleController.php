@@ -35,7 +35,7 @@ class ApiArticleController extends Controller
     {
       $content = $request->request;
 
-      if ((null !==$content->get('title')) ) {
+      if ((null !==$content->get('title'))) {
         $entityClass = 'App\Entity\Article';
 
         
@@ -49,19 +49,24 @@ class ApiArticleController extends Controller
         $entityUpdater->updateEntity($entity, "birth", $content->get("birth"));
         $entityUpdater->updateEntity($entity, "price", $content->get("price"));
 
-        $entitytoUpdate = array("category", "material", "dynasty", "discount", "museum");
+        $entitytoUpdate = array("category", "material", "dynasty", "artist","discount", "museum");
         foreach ($entitytoUpdate as $etu) {
           $entityUpdater->updateEntityWithEntity($entity, $etu, $content->get($etu));
         }
-       // $entityUpdater->updateEntityArrayWithEntity($entity, "theme", $content->get("theme"), $entityManager);
+
+        if( null !== $content->get("themes")) {
+          $t = explode(",", $content->get("themes"));
+        $entityUpdater->updateEntityArrayWithEntity($entity, "theme", $t);
+        }
+
+        
                
         $entityUpdater->updateEntityWithSizeSizeCategory($entity, $content->get("sizes"));
 
-        $translationToUpdate = array("description");
-        foreach($translationToUpdate as $ttu) {
-          $entityUpdater->updateEntityWithField($entity, $content, $this->getParameter('languages'), $ttu);
-        }
-        $entityUpdater->updateArticleWithTitle($entity, $content, $this->getParameter('languages'));
+        $translationToUpdate = array("description", "title");
+          $entityUpdater->updateEntityWithField($entity, $content, $this->getParameter('languages'), $translationToUpdate);
+        
+        //$entityUpdater->updateArticleWithTitle($entity, $content, $this->getParameter('languages'));
         if(!empty($request->files->get('smallImage'))) {
           $fileUploader->uploadImage($entity, $request->files->get('smallImage'),'small');
         }
@@ -104,17 +109,24 @@ class ApiArticleController extends Controller
            $article["birth"] = $element->getBirth();
            $article["price"] = $element->getPrice();
            $article["status"] = $element->getStatus();
-           $article["smallimage"] = $element->getSmallpicturename();
-           $article["bigimage"] = $element->getBigpicturename();
-           foreach ($this->getParameter('languages') as $lang) {
-            $article[$lang] = $element->translate($lang)->getDescription();
+           $article["smallimage"] = $element->getSmall();
+           $article["bigimage"] = $element->getBig();
+           $traductionList = array("description", "title");
+           foreach ($traductionList as $tl) {
+            $getter = "get".ucfirst($tl);
+             foreach ($this->getParameter('languages') as $lang) {
+            $article[$tl."_".$lang] = $element->translate($lang)->$getter();
           }
-          $simpleElementToReturn = array("category", "material","discount");
+           }
+           
+          $simpleElementToReturn = array("category", "material","discount", "museum");
 
           foreach($simpleElementToReturn as $item) {
             $getter = "get".ucfirst($item);
             if( null !== $element->$getter()) {
             $article[$item][] = array("id" => $element->$getter()->getId(), "placeholder" => $element->$getter()->getPlaceholder());
+          } else {
+            $article[$item][] = array("id" => 0, "placeholder" => "field undefined");
           }
           }
           $simpleArtistDynastyToReturn = array("artist", "dynasty");
@@ -122,6 +134,8 @@ class ApiArticleController extends Controller
             $getter = "get".ucfirst($item);
             if( null !== $element->$getter()) {
             $article[$item][] = array("id" => $element->$getter()->getId(), "name" => $element->$getter()->getName());
+          } else {
+            $article[$item][] = array("id" => 0, "placeholder" => "field undefined");
           }
           }
 
@@ -131,15 +145,25 @@ class ApiArticleController extends Controller
             $article["sizes"][] = array("id" => $s->getId(), 
               "width" => $s->getWidth(),
               "length" => $s->getLength(),
-              "sizecategory" => array("id" => $s->getSizecategory()->getId(),
-                "placeholder" =>  $s->getSizecategory()->getPlaceholder()));
+              "sizecategoryId" => null == $s->getSizecategory() ?  0: $s->getSizecategory()->getId(),
+              "sizecategory" =>  null == $s->getSizecategory() ? "undefined":$s->getSizecategory()->getPlaceholder()
+            );
           }
 
+          if( null !== $element->getTheme()) {
+            foreach( $element->getTheme() as $t) {
+$article["theme"][] = array( "id" => $t->getId(),
+                           "placehoder" => $t->getPlaceholder(),
+                           "media" => null == $t->getMedia()? '':$t->getMedia()->getPlaceholder(),
+                           "mediaId" => null == $t->getMedia()? 0:$t->getMedia()->getId());
+$article["media"] = array("id" => null == $t->getMedia()? '':$t->getMedia()->getPlaceholder(),
+                          "placeholder" => null == $t->getMedia()? 0:$t->getMedia()->getId());
 
+            }
+          }
           $articleList[] = $article;
+          }   
         }
-      }
-
            //$data = $this->get('jms_serializer')->serialize($translations, 'json');
           // $data = json_encode($translationList) ;
       $data = $this->get('jms_serializer')->serialize($articleList, 'json');
@@ -175,8 +199,8 @@ class ApiArticleController extends Controller
            $article["birth"] = $element->getBirth();
            $article["price"] = $element->getPrice();
            $article["status"] = $element->getStatus();
-           $article["smallimage"] = $element->getSmallpicturename();
-           $article["bigimage"] = $element->getBigpicturename();
+           $article["smallimage"] = $element->getSmall();
+           $article["bigimage"] = $element->getBig();
            
           $article[$lang] = $element->translate($lang)->getDescription();
           $article["title_cn"] = $element->translate("cn_cn")->getTitle();

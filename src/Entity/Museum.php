@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\MuseumRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Knp\DoctrineBehaviors\Contract\Entity\TranslatableInterface;
 use Knp\DoctrineBehaviors\Model\Translatable\TranslatableTrait;
@@ -36,9 +38,9 @@ class Museum implements TranslatableInterface
     private $linkname;
 
     /**
-     * @ORM\OneToOne(targetEntity=Article::class, inversedBy="museum", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity=Article::class, mappedBy="museum")
      */
-    private $OneToOne;
+    private $articles;
 
     public function getId(): ?int
     {
@@ -81,14 +83,33 @@ class Museum implements TranslatableInterface
         return $this;
     }
 
-    public function getOneToOne(): ?Article
+   /**
+     * @return Collection|Article[]
+     */
+    public function getArticles(): Collection
     {
-        return $this->OneToOne;
+        return $this->articles;
     }
 
-    public function setOneToOne(?Article $OneToOne): self
+    public function addArticle(Article $article): self
     {
-        $this->OneToOne = $OneToOne;
+        if (!$this->articles->contains($article)) {
+            $this->articles[] = $article;
+            $article->setMuseum($this);
+        }
+
+        return $this;
+    }
+
+    public function removeArticle(Article $article): self
+    {
+        if ($this->articles->contains($article)) {
+            $this->articles->removeElement($article);
+            // set the owning side to null (unless already changed)
+            if ($article->getMuseum() === $this) {
+                $article->setMuseum(null);
+            }
+        }
 
         return $this;
     }

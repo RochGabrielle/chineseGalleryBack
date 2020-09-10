@@ -27,6 +27,4 @@ class StatusUpdater
     		$this->em->flush();
     	}
     }
-
-
 }
