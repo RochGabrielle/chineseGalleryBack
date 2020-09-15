@@ -201,6 +201,14 @@ $article["media"] = array("id" => null == $t->getMedia()? '':$t->getMedia()->get
            $article["status"] = $element->getStatus();
            $article["smallimage"] = $element->getSmall();
            $article["bigimage"] = $element->getBig();
+           $themes = $element->getTheme();
+           $theme = '';
+           foreach ($themes as $t) {
+             $theme = $theme . ' '.$t->getPlaceholder();
+             $article["media"] = null == $t->getMedia()? '': $t->getMedia()->getPlaceholder();
+           }
+           $article["theme"] = $theme;
+
            
           $article[$lang] = $element->translate($lang)->getDescription();
           $article["title_cn"] = $element->translate("cn_cn")->getTitle();
@@ -226,8 +234,10 @@ $article["media"] = array("id" => null == $t->getMedia()? '':$t->getMedia()->get
             $article["sizes"][] = array("id" => $s->getId(), 
               "width" => $s->getWidth(),
               "length" => $s->getLength(),
-              "sizecategory" => array("id" => $s->getSizecategory()->getId(),
-                "placeholder" =>  $s->getSizecategory()->getPlaceholder()));
+              "sizecategory" => array("id" => null == $s->getSizecategory()? 0: $s->getSizecategory()->getId(),
+                                      "placeholder" =>  null == $s->getSizecategory()? '': $s->getSizecategory()->getPlaceholder()
+                                    )
+            );
           }
 
 
