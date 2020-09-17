@@ -9,25 +9,30 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Artist;
 use App\Entity\Dynasty;
 use App\Service\ListGetter;
+use App\Service\EntityUpdater;
 
 
 class ApiElementController extends Controller
 {
+  public function __construct(EntityManagerInterface $em) {
+        $this->em = $em;
+    }
 
   /**
      * @Route("/api/admin/add_element", name="add_element", methods={"POST"})
      */
-  public function addElementAction( Request $request)
+  public function addElementAction( Request $request, EntityUpdater $EntityUpdater)
   {
   	$content = json_decode($request->getContent(), true);
     $dynastyEntity = 'App\Entity\Dynasty';
+    $fields = array("name", "description");
 
     if (isset($content["name"]) && 
-      isset($content["name_cn"]) && 
+      isset($content["name_cn_cn"]) && 
       isset($content["birth"]) && 
       isset($content["death"]) && 
-      isset($content["en_gb"]) &&
-      isset($content["fr_fr"]) &&
+      isset($content["description_en_gb"]) &&
+      isset($content["description_fr_fr"]) &&
       isset($content["entity"]) &&
       ($content["entity"] == "dynasty" ||
        ($content["entity"] == "artist" && isset($content["dynasty"]))
@@ -35,7 +40,7 @@ class ApiElementController extends Controller
       $entityClass = 'App\Entity\\'.ucfirst($content["entity"]);
 
     $entityManager = $this->getDoctrine()->getManager();
-    $entity = $entityManager->getRepository($entityClass)->findOneByName($content["name"]);
+    $entity = $this->em->getRepository($entityClass)->findOneByName($content["name"]);
 
     if ($entity) {
       if($entity->getBirth() != $content["birth"]) {
@@ -44,15 +49,11 @@ class ApiElementController extends Controller
      if($entity->getDeath($content["death"])!=  $content["death"] ) {
        $entity->setDeath($content["death"]);
      }
-     foreach($this->getParameter('languages') as $lang) {
-       if(empty($entity->translate($lang)->getDescription()) || ($entity->translate($lang)->getDescription() != $content[$lang]) ) {
-        $entity->translate($lang)->setDescription($content[$lang]);
-        $entity->mergeNewTranslations();
-        $responseMsessage = "update of ". $content["name"] . " in " .$content["entity"];   
-      }
-    }
+
+     $EntityUpdater->updateEntityWithJsonField($entity, $content, $this->getParameter('languages'), $fields);
+     
     if($content["entity"] == "artist"){
-      $dynastys = $entity->getDynasty();
+    /*  $dynastys = $entity->getDynasty();
       $dynastyIdList = array();
       foreach($dynastys as $dynasty){
         $dynastyIdList[] = $dynasty->getId();
@@ -61,11 +62,11 @@ class ApiElementController extends Controller
         }
       }
       foreach($content["dynasty"] as $dyn) {
-        if(!in_array($entityManager->getRepository($dynastyEntity)->findOneById($dyn)->getId(), $dynastyIdList)){
-          $entity->addDynasty($entityManager->getRepository($dynastyEntity)->findOneById($dyn));
+        if(!in_array($this->em->getRepository($dynastyEntity)->findOneById($dyn)->getId(), $dynastyIdList)){
+          $entity->addDynasty($this->em->getRepository($dynastyEntity)->findOneById($dyn));
         }
         
-      }
+      }*/
     }
     $content = "update ". $content["entity"];
 
@@ -74,21 +75,20 @@ class ApiElementController extends Controller
     $entity->setName($content["name"]);
     $entity->setBirth($content["birth"]);
     $entity->setDeath($content["death"]);
-    foreach($this->getParameter('languages') as $lang) {
-     $entity->translate($lang)->setDescription($content[$lang]);
-   }
-   $entity->translate('cn_cn')->setDescription($content["name_cn"]);
+    
+     $EntityUpdater->updateEntityWithJsonField($entity, $content, $this->getParameter('languages'), $fields);
+   $entity->translate('cn_cn')->setDescription($content["name_cn_cn"]);
    $entity->mergeNewTranslations();
    if($content["entity"] == "artist"){
-    foreach($content["dynasty"] as $dyn) {
-      $entity->addDynasty($entityManager->getRepository($dynastyEntity)->findOneById($dyn));
-    }
+/*    foreach($content["dynasty"] as $dyn) {
+      $entity->addDynasty($this->em->getRepository($dynastyEntity)->findOneById($dyn));
+    }*/
   }
   $content = "new ".$content["entity"]." created.";
 }       
 
-$entityManager->persist($entity);
-$entityManager->flush();
+$this->em->persist($entity);
+$this->em->flush();
 } else {
  $content = "le json est invalide";
 }
@@ -108,9 +108,8 @@ return $response;
     	$entityClass = 'App\Entity\\'.ucfirst($entity);
 
     	if (class_exists($entityClass)) {
-    		$entityManager = $this->getDoctrine()->getManager();
 
-    		$elements = $entityManager->getRepository($entityClass)->findAll();
+    		$elements = $this->em->getRepository($entityClass)->findAll();
 
     		$elementList = array();
     		if( !empty($elements)) {
@@ -120,10 +119,10 @@ return $response;
     				$description["name"] = $element->getName();
     				$description["birth"] = $element->getBirth();
     				$description["death"] = $element->getDeath();
-    				foreach ($this->languages as $lang) {
-    					$description[$lang] = $element->translate($lang)->getDescription();
+    				foreach ($this->getParameter('languages') as $lang) {
+    					$description['description_'.$lang] = $element->translate($lang)->getDescription();
     				}
-            $description["name_cn"] = $element->translate("cn_cn")->getName();
+            $description["name_cn_cn"] = $element->translate("cn_cn")->getName();
 
          
             if($entity == "artist") {
@@ -142,7 +141,7 @@ return $response;
 
     		$data = $this->get('jms_serializer')->serialize($elementList, 'json');
       
-    	} else { $data = "enity ".$element." doesn't exist.";}
+    	} else { $data = "entity ".$entity." doesn't exist.";}
     	$response = new Response($data);
     	$response->headers->set('Content-Type', 'application/json');
     	return $response;
@@ -156,9 +155,8 @@ return $response;
     	$entityClass = 'App\Entity\\'.ucfirst($entity);
 
     	if (class_exists($entityClass)) {
-    		$entityManager = $this->getDoctrine()->getManager();
 
-    		$element = $entityManager->getRepository($entityClass)->findOneByName($name);
+    		$element = $this->em->getRepository($entityClass)->findOneByName($name);
     		$elementDescriptionTranslation = $element->translate($lang)->getDescription();
 
     		$data = $this->get('jms_serializer')->serialize($element, 'json');
@@ -178,9 +176,8 @@ return $response;
       $entityClass = 'App\Entity\\'.ucfirst($entity);
 
       if (class_exists($entityClass)) {
-        $entityManager = $this->getDoctrine()->getManager();
 
-        $elements = $entityManager->getRepository($entityClass)->findAll();
+        $elements = $this->em->getRepository($entityClass)->findAll();
        $data = $listGetter->getList($elements);
      } else {
       $data = "this element doesn't exist";

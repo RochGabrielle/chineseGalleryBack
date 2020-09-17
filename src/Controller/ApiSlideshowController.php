@@ -67,8 +67,8 @@ $response = new Response($data);
 }
 
 
-/**
-     * @Route("/api/slidelist/", name="get_slidelist", methods={"GET"})
+    /**
+     * @Route("/api/slideList", name="get_slide_list", methods={"GET"})
      */
   public function getSlideListAction() {
     
@@ -101,7 +101,7 @@ $response = new Response($data);
   }
 
 /**
-     * @Route("/api/slideshow/{lang}", name="get_slidelist", methods={"GET"})
+     * @Route("/api/slideshow/{lang}", name="get_slideshow", methods={"GET"})
      */
   public function getSlideshowAction($lang) {
     

@@ -67,11 +67,11 @@ class ApiArticleController extends Controller
           $entityUpdater->updateEntityWithField($entity, $content, $this->getParameter('languages'), $translationToUpdate);
         
         //$entityUpdater->updateArticleWithTitle($entity, $content, $this->getParameter('languages'));
-        if(!empty($request->files->get('smallImage'))) {
-          $fileUploader->uploadImage($entity, $request->files->get('smallImage'),'small');
+        if(!empty($request->files->get('small'))) {
+          $fileUploader->uploadImage($entity, $request->files->get('small'),'small');
         }
-        if(!empty($request->files->get('bigImage'))) {
-        $fileUploader->uploadImage($entity, $request->files->get('bigImage'),'big');
+        if(!empty($request->files->get('big'))) {
+        $fileUploader->uploadImage($entity, $request->files->get('big'),'big');
       }
         $this->em->persist($entity);
         $this->em->flush();        

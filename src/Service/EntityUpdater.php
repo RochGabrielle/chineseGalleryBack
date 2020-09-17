@@ -129,7 +129,7 @@ public function updateEntityWithSizeSizeCategory( Object $entityToUpdate, $sizes
 }
 
 /**
- * Add translation to fields in array of $field
+ * Add translation to fields in array of $field from a formdata
  **/
 public function updateEntityWithField( Object $entityToUpdate, Object $translations, $languagesArray, Array $fields) {
   foreach($fields as $field ) {
@@ -148,6 +148,32 @@ if($lang == 'cn_cn' && $field == 'description') {
 }
 $entityToUpdate->mergeNewTranslations();
 }
+
+/**
+ * Add translation to fields in array of $field from a json
+ **/
+public function updateEntityWithJsonField( Object $entityToUpdate, Array $translations, $languagesArray, Array $fields) {
+  foreach($fields as $field ) {
+  $getter = "get".ucfirst($field);
+  $setter = "set".ucfirst($field);
+  foreach($languagesArray as $lang) {
+   if(empty($entityToUpdate->translate($lang)->$getter()) || ($entityToUpdate->translate($lang)->$getter() != $translations[$field."_".$lang] )) {
+    if(isset($translations[$field."_".$lang]) && $translations[$field."_".$lang] !== '') {
+    $entityToUpdate->translate($lang)->$setter($translations[$field."_".$lang]);
+  } else {
+    $entityToUpdate->translate($lang)->$setter('');
+  }
+  }
+if($lang == 'cn_cn' && $field == 'description') {
+  $entityToUpdate->translate('cn_cn')->$setter('');
+}
+}
+}
+$entityToUpdate->mergeNewTranslations();
+}
+
+
+
 
 public function updateArticleWithTitle( Object $entityToUpdate, Object $translations, $languagesArray) {
 foreach($languagesArray as $lang) {

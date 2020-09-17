@@ -31,7 +31,7 @@ class ApiMuseumController extends Controller
     public function addMuseumAction( Request $request, EntityUpdater $entityUpdater)
     {
         $content = json_decode($request->getContent(), true);
-        if (isset($content["placeholder"]) && isset($content["en_gb"]) && isset($content["fr_fr"]) && isset($content["cn_cn"]) && isset($content["link"]) && isset($content["linkname"])) {
+        if (isset($content["placeholder"]) && isset($content["name_en_gb"]) && isset($content["name_fr_fr"]) && isset($content["name_cn_cn"]) && isset($content["link"]) && isset($content["linkname"])) {
             $entityClass = 'App\Entity\Museum';
             if (class_exists($entityClass)) {
 
@@ -45,8 +45,8 @@ class ApiMuseumController extends Controller
                     
                     $i = 0;
                     while(isset($langs[$i])) {
-                        if(empty($entity->translate($langs[$i])->getName()) || ($entity->translate($langs[$i])->getName() != $content[$langs[$i]]) ) {
-                            $entity->translate($langs[$i])->setName($content[$langs[$i]]);
+                        if(empty($entity->translate($langs[$i])->getName()) || ($entity->translate($langs[$i])->getName() != $content['name_'.$langs[$i]]) ) {
+                            $entity->translate($langs[$i])->setName($content['name_'.$langs[$i]]);
                             $entity->mergeNewTranslations();
                             $responseMsessage = "update of ". $content["placeholder"] . " in museum";   
                         }
@@ -92,7 +92,7 @@ class ApiMuseumController extends Controller
                     }
                     foreach($this->getParameter('languages') as $lang) {
                         $getter = "get".ucfirst($ftf);
-                        $m[$lang] = $museum->translation($lang)->getName();
+                        $m["name_".$lang] = $museum->translate($lang)->getName();
                     }
 
 
