@@ -53,7 +53,8 @@ class ApiElementController extends Controller
      $EntityUpdater->updateEntityWithJsonField($entity, $content, $this->getParameter('languages'), $fields);
      
     if($content["entity"] == "artist"){
-    /*  $dynastys = $entity->getDynasty();
+      if( isset($content["dynasty"]) && null !== $content["dynasty"]) {
+        $dynastys = $entity->getDynasty();
       $dynastyIdList = array();
       foreach($dynastys as $dynasty){
         $dynastyIdList[] = $dynasty->getId();
@@ -66,7 +67,9 @@ class ApiElementController extends Controller
           $entity->addDynasty($this->em->getRepository($dynastyEntity)->findOneById($dyn));
         }
         
-      }*/
+      }
+      }
+
     }
     $content = "update ". $content["entity"];
 
@@ -80,9 +83,11 @@ class ApiElementController extends Controller
    $entity->translate('cn_cn')->setDescription($content["name_cn_cn"]);
    $entity->mergeNewTranslations();
    if($content["entity"] == "artist"){
-/*    foreach($content["dynasty"] as $dyn) {
+    if( isset($content["dynasty"]) && null !== $content["dynasty"]) {
+foreach($content["dynasty"] as $dyn) {
       $entity->addDynasty($this->em->getRepository($dynastyEntity)->findOneById($dyn));
-    }*/
+    }
+  }
   }
   $content = "new ".$content["entity"]." created.";
 }       

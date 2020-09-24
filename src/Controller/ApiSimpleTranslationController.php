@@ -27,7 +27,7 @@ class ApiSimpleTranslationController extends Controller
     public function addTranslationAction( Request $request)
     {
         $content = json_decode($request->getContent(), true);
-        if (isset($content["placeholder"]) && isset($content["fr_fr"]) && isset($content["en_gb"]) && isset($content["entity"])) {
+        if (isset($content["placeholder"]) && isset($content["entity"])) {
             $entityClass = 'App\Entity\\'.ucfirst($content["entity"]);
             if (class_exists($entityClass)) {
                 $entity = $this->em->getRepository($entityClass)->findOneByPlaceholder($content["placeholder"]);
@@ -36,8 +36,8 @@ class ApiSimpleTranslationController extends Controller
                 if ($entity) {
                     $i = 0;
                     while(isset($langs[$i])) {
-                        if((empty($entity->translate($langs[$i])->getName()) || ($entity->translate($langs[$i])->getName() != $content[$langs[$i]])) && isset($content[$langs[$i]]) ) {
-                            $entity->translate($langs[$i])->setName($content[$langs[$i]]);
+                        if( isset($content["name_".$langs[$i]]) && (empty($entity->translate($langs[$i])->getName()) || ( $entity->translate($langs[$i])->getName() != $content["name_".$langs[$i]])  )) {
+                            $entity->translate($langs[$i])->setName($content["name_".$langs[$i]]);
                             $entity->mergeNewTranslations();
                             $responseMsessage = "update of ". $content["placeholder"] . " in " .$content["entity"];   
                         }
@@ -50,12 +50,17 @@ class ApiSimpleTranslationController extends Controller
                             }                        
                         }
                     }
+
+                    if($content["entity"] == 'discount' && isset($content["discountrate"]) && $content["discountrate"] !== 0) {
+                           
+                                $entity->setDiscountrate($content["discountrate"]);                      
+                        }
                 } else {
                     $entity = new $entityClass();
                     $entity->setPlaceholder($content["placeholder"]);
                     foreach($this->getParameter('languages') as $lang) {
-                        if( isset($content[$lang])) {
-                        $entity->translate($lang)->setName($content[$lang]);
+                        if( isset($content["name_".$lang])) {
+                        $entity->translate($lang)->setName($content["name_".$lang]);
                         $entity->mergeNewTranslations();
                         $responseMsessage = "new ".$content["entity"]." created.";
                     }
@@ -65,7 +70,14 @@ class ApiSimpleTranslationController extends Controller
                             if( null !== $media) {
                                 $entity->setMedia($media);
                             }                        
-                        }     
+                        }
+
+                    if($content["entity"] == 'discount' && isset($content["discountrate"]) && $content["discountrate"] !== 0) {
+                           
+                                $entity->setDiscountrate($content["discountrate"]);                      
+                        }
+
+
                 }
                 $this->em->persist($entity);
                 $this->em->flush();
@@ -116,16 +128,16 @@ class ApiSimpleTranslationController extends Controller
 
 
     /**
-     * @Route("/api/admin/translationlist/{entity}/{simple}", name="get_translation_list", methods={"GET"})
+     * @Route("/api/admin/translationlist/{entity}/{fullList}", name="get_translation_list", methods={"GET"})
      */
-    public function getTranslationListAction( string $entity, string $simple, ListGetter $listGetter )
+    public function getTranslationListAction( string $entity, string $fullList, ListGetter $listGetter )
     {
         $entityClass = 'App\Entity\\'.ucfirst($entity);
 
         if (class_exists($entityClass)) {
 
             $placeholders = $this->em->getRepository($entityClass)->findAll();
-            $cond = $simple == "true" ? true : false;
+            $cond = trim($fullList);
 
         $data = $this->get('jms_serializer')->serialize($listGetter->getList($placeholders, $this->getParameter('languages'), $cond, $entity ), 'json');
     } else { $data = "enity ".$element." doesn't exist.";}

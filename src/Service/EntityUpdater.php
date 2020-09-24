@@ -44,11 +44,16 @@ public function updateEntityArrayWithEntity( Object $entityToUpdate, string $ent
   $remover = 'remove'.ucfirst($entityName);
 
   foreach ($contents as $content) {
+
   $entity = $this->em->getRepository($entityClass)->findOneById($content);
+  if( null !== $entity) {
     $entityToUpdate->$adder($entity);
-    //$entity->add($entityToUpdate);
+    //$entity->addArticle($entityToUpdate);
     //$this->em->persist($entity);
-  } 
+  }
+    
+    
+  }  //dd('rrrzr');
     $ee = $entityToUpdate->$getter();
     $eeId = array();
     if ( null !== $ee) {
@@ -69,11 +74,15 @@ public function updateEntityWithSizeSizeCategory( Object $entityToUpdate, $sizes
 
   $sizeClass = 'App\Entity\Size';
   $sizecategoryClass = 'App\Entity\Sizecategory';
+  $sizeRepository = $this->em->getRepository($sizeClass);
   $articleSizes = $entityToUpdate->getSizes();
-  $sizes = json_decode ($sizes, true);
+  $formSizes = json_decode ($sizes, true);
+  $nullParameterValues = array("0", "0.0");
   //dd($articleSizes);
+  // if no size exist for the article and length and width are not null create new size and add it to article
   if( null == $articleSizes) {
-    foreach($sizes as $size) {
+    foreach($formSizes as $size) {
+      if(!in_array($size["length"],$nullParameterValues) && !in_array($size["width"],$nullParameterValues)) {
       $s = new $sizeClass();
       $s->setLength($size["length"]);
       $s->setWidth($size["width"]);
@@ -81,51 +90,69 @@ public function updateEntityWithSizeSizeCategory( Object $entityToUpdate, $sizes
         $s->setSizecategory($this->em->getRepository($sizecategoryClass)->findOneById($size["sizecategoryId"]));
       }  
       $s->setArticle($entityToUpdate);
-      dd($s);
       $this->em->persist($s);
       $entityToUpdate->addSize($s);
-
+}
     }
   } else {
+    // for sizes that already exist in article
     $articleSizeId = array();
-    $sizeId = array();
-    foreach($sizes as $size) {
-      if( isset($size["sizecategoryId"]) && $size["sizecategoryId"] !== null && $size["sizecategoryId"] != 0) {
-      $sizeId[] = $size["sizecategoryId"];
+    $formSizeIds = array();
+    // Removing existing sizes that are not in the form
+    foreach($formSizes as $size) {
+      if( isset($size["sizeId"]) && $size["sizeId"] !== null && $size["sizeId"] != 0) {
+      $formSizeIds[] = $size["sizeId"];
     }
     }
+
+    $i = 0;
     foreach($articleSizes as $as) {
+      if(!in_array($as->getId(), $formSizeIds) ) {
+        $this->em->remove($as);
 
-      if(!in_array($as->getId(),$sizeId)) {
-        $entityToUpdate->removeSize($as);
-      } else { 
-        foreach($sizes as $s ) {
-          if(isset($s['sizeId']) && $s['sizeId'] == $as->getId()){
-            $as->setLength($s['length']);
-            $as->setWidth($s['width']);
-            $as->setSizecategory($this->em->getRepository($sizecategoryClass)->findOneById($s["sizecategoryId"]));
+        $i++;
+      }
+    } $this->em->persist($entityToUpdate);
+    // adding or updating size for article
+    foreach($formSizes as $s ) {
+      // check if it is an existing size field
+      if(isset($s['sizeId']) && $s['sizeId'] !== 0) {
+        $existingSize = $sizeRepository->findOneById($s['sizeId']);
+       if(!in_array($s["length"],$nullParameterValues) && !in_array($s["width"],$nullParameterValues)) {
+         if(null !== $existingSize) {
+            $existingSize = $sizeRepository->findOneById($s['sizeId']);
+            $existingSize->setLength($s['length']);
+            $existingSize->setWidth($s['width']);
+            $existingSize->setSizecategory($this->em->getRepository($sizecategoryClass)->findOneById($s["sizecategoryId"]));
+            $this->em->persist($existingSize);
           }
-        }
-
-      }
-      $articleSizeId[] = $as->getId();
-    }
-    foreach($sizes as $size) {
-      if( !in_array($size['sizeId'], $articleSizeId) || $size['sizeId'] == 0) {
-        $s = new $sizeClass();
-        $s->setLength($size["length"]);
-        $s->setWidth($size["width"]);
-        if( isset($size["sizecategoryId"]) && $size["sizecategoryId"] !== null && $size["sizecategoryId"] != 0) {
+          } else {
+            // remove size in form with length or width set to 0
+            if(null !== $existingSize) {
+             
+            $this->em->remove($existingSize);
+            }
+          }
+        } else {
+       // It's a new size field, create it and add it to article 
+       if(!in_array($s["length"],$nullParameterValues) && !in_array($s["width"],$nullParameterValues)) {
+      $s = new $sizeClass();
+      $s->setLength($size["length"]);
+      $s->setWidth($size["width"]);
+      if( isset($size["sizecategoryId"]) && $size["sizecategoryId"] !== null && $size["sizecategoryId"] != 0) {
         $s->setSizecategory($this->em->getRepository($sizecategoryClass)->findOneById($size["sizecategoryId"]));
+      }  
+      $s->setArticle($entityToUpdate);
+      $this->em->persist($s);
+      $entityToUpdate->addSize($s);
+      $this->em->persist($entityToUpdate);
+        }
+        }
       }
-        $s->setArticle($entityToUpdate);
-        $this->em->persist($s);
-        $entityToUpdate->addSize($s);
-      }
-    }
 
   }
-
+  $this->em->flush();
+//dd('end of size');
 }
 
 /**

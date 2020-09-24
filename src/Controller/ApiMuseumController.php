@@ -66,7 +66,7 @@ class ApiMuseumController extends Controller
         } else {
             $responseMsessage = "le json est invalide";
         }
-        $data = $this->get('jms_serializer')->serialize($responseMsessage, 'json');
+        $data = $this->get('jms_serializer')->serialize("museum added", 'json');
 
         $response = new Response($data);
         $response->headers->set('Content-Type', 'application/json');

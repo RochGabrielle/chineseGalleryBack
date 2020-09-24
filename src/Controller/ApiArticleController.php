@@ -53,14 +53,11 @@ class ApiArticleController extends Controller
         foreach ($entitytoUpdate as $etu) {
           $entityUpdater->updateEntityWithEntity($entity, $etu, $content->get($etu));
         }
-
         if( null !== $content->get("themes")) {
           $t = explode(",", $content->get("themes"));
         $entityUpdater->updateEntityArrayWithEntity($entity, "theme", $t);
         }
-
-        
-               
+   
         $entityUpdater->updateEntityWithSizeSizeCategory($entity, $content->get("sizes"));
 
         $translationToUpdate = array("description", "title");
@@ -82,9 +79,10 @@ class ApiArticleController extends Controller
 
       $data = $this->get('jms_serializer')->serialize($responseMessage, 'json');
 
-      $response = new Response($data);
-      $response->headers->set('Content-Type', 'application/json');
-      return $response;
+$response = new Response($data);
+
+$response->headers->set('Content-Type', 'application/json');
+return $response;
     }
 
 
@@ -150,16 +148,26 @@ class ApiArticleController extends Controller
             );
           }
 
-          if( null !== $element->getTheme()) {
-            foreach( $element->getTheme() as $t) {
-$article["theme"][] = array( "id" => $t->getId(),
-                           "placehoder" => $t->getPlaceholder(),
+          $article["media"] = array("id" => 0,
+                          "placeholder" => '');
+            $article["theme"][] = array( "id" => 0,
+                           "placehoder" => '',
+                           "media" => '',
+                           "mediaId" => 0);
+          if(null !== $element->getTheme()  && !empty($element->getTheme())) {
+
+            foreach($element->getTheme() as $t) {
+$article["theme"][] = array( "id" => null == $t->getId()? '0': $t->getId(),
+                           "placehoder" => null == $t->getPlaceholder()? '': $t->getPlaceholder(),
                            "media" => null == $t->getMedia()? '':$t->getMedia()->getPlaceholder(),
                            "mediaId" => null == $t->getMedia()? 0:$t->getMedia()->getId());
-$article["media"] = array("id" => null == $t->getMedia()? '':$t->getMedia()->getPlaceholder(),
-                          "placeholder" => null == $t->getMedia()? 0:$t->getMedia()->getId());
-
+$article["media"] = array("id" => null == $t->getMedia()? '':$t->getMedia()->getId(),
+                          "placeholder" => null == $t->getMedia()? 0:$t->getMedia()->getPlaceholder());
             }
+          } 
+          if(null == $element->getTheme() || (null !== $element->getTheme()  && empty($element->getTheme()))) {
+            dd('in the condition');
+                       
           }
           $articleList[] = $article;
           }   
@@ -277,10 +285,13 @@ return $response;
     public function updateStatusAction( Request $request, StatusUpdater $statusUpdater)
     {
       $statusUpdater->updateStatus($request);
-      $response = new Response("status has been updated");
-      $response->headers->set('Content-Type', 'application/json');
-      return $response;
-    }
+      $responseMessage ="Status has been updated";
+      $data = $this->get('jms_serializer')->serialize($responseMessage, 'json');
 
+$response = new Response($data);
+
+$response->headers->set('Content-Type', 'application/json');
+return $response;
+    }
 
 }
