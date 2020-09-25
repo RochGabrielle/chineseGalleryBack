@@ -2,25 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\MediaTranslation;
+use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method MediaTranslation|null find($id, $lockMode = null, $lockVersion = null)
- * @method MediaTranslation|null findOneBy(array $criteria, array $orderBy = null)
- * @method MediaTranslation[]    findAll()
- * @method MediaTranslation[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Product|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Product|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Product[]    findAll()
+ * @method Product[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class MediaTranslationRepository extends ServiceEntityRepository
+class ProductRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, MediaTranslation::class);
+        parent::__construct($registry, Product::class);
     }
 
     // /**
-    //  * @return MediaTranslation[] Returns an array of MediaTranslation objects
+    //  * @return Product[] Returns an array of Product objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class MediaTranslationRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?MediaTranslation
+    public function findOneBySomeField($value): ?Product
     {
         return $this->createQueryBuilder('m')
             ->andWhere('m.exampleField = :val')

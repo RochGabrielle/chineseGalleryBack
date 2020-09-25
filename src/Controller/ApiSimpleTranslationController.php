@@ -43,10 +43,10 @@ class ApiSimpleTranslationController extends Controller
                         }
                         $i++;
 
-                        if($content["entity"] == 'theme' && isset($content["mediaId"]) && $content["mediaId"] !== 0) {
-                            $media = $this->em->getRepository('App\Entity\Media')->findOneById($content["mediaId"]);
-                            if( null !== $media) {
-                                $entity->setMedia($media);
+                        if($content["entity"] == 'theme' && isset($content["categoryId"]) && $content["categoryId"] !== 0) {
+                            $category = $this->em->getRepository('App\Entity\Category')->findOneById($content["categoryId"]);
+                            if( null !== $category) {
+                                $entity->setCategory($category);
                             }                        
                         }
                     }
@@ -65,10 +65,10 @@ class ApiSimpleTranslationController extends Controller
                         $responseMsessage = "new ".$content["entity"]." created.";
                     }
                     }  
-                    if($content["entity"] == 'theme' && isset($content["mediaId"]) && $content["mediaId"] !== 0) {
-                            $media = $this->em->getRepository('App\Entity\Media')->findOneById($content["mediaId"]);
-                            if( null !== $media) {
-                                $entity->setMedia($media);
+                    if($content["entity"] == 'theme' && isset($content["categoryId"]) && $content["categoryId"] !== 0) {
+                            $category = $this->em->getRepository('App\Entity\Category')->findOneById($content["categoryId"]);
+                            if( null !== $category) {
+                                $entity->setCategory($category);
                             }                        
                         }
 

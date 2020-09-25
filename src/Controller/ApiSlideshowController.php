@@ -61,6 +61,7 @@ $this->em->flush();
 } else {
   $data = "title is missing";
 }
+$data = $this->get('jms_serializer')->serialize($data, 'json');
 $response = new Response($data);
       $response->headers->set('Content-Type', 'application/json');
       return $response;

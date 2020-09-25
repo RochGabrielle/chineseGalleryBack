@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Repository\ThemeRepository;
+use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -10,9 +10,9 @@ use Knp\DoctrineBehaviors\Contract\Entity\TranslatableInterface;
 use Knp\DoctrineBehaviors\Model\Translatable\TranslatableTrait;
 
 /**
- * @ORM\Entity(repositoryClass=ThemeRepository::class)
+ * @ORM\Entity(repositoryClass=ProductRepository::class)
  */
-class Theme implements TranslatableInterface
+class Product implements TranslatableInterface
 {
     use TranslatableTrait;
     
@@ -29,14 +29,9 @@ class Theme implements TranslatableInterface
     private $placeholder;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Article::class, mappedBy="theme")
+     * @ORM\OneToMany(targetEntity=Article::class, mappedBy="product")
      */
     private $articles;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="themes")
-     */
-    private $category;
 
     public function __construct()
     {
@@ -60,7 +55,7 @@ class Theme implements TranslatableInterface
     {
         if (!$this->articles->contains($article)) {
             $this->articles[] = $article;
-            $article->addTheme($this);
+            $article->setProduct($this);
         }
 
         return $this;
@@ -70,7 +65,10 @@ class Theme implements TranslatableInterface
     {
         if ($this->articles->contains($article)) {
             $this->articles->removeElement($article);
-            $article->removeTheme($this);
+            // set the owning side to null (unless already changed)
+            if ($article->getProduct() === $this) {
+                $article->setProduct(null);
+            }
         }
 
         return $this;
@@ -84,18 +82,6 @@ class Theme implements TranslatableInterface
     public function setPlaceholder(string $placeholder): self
     {
         $this->placeholder = $placeholder;
-
-        return $this;
-    }
-
-    public function getCategory(): ?Category
-    {
-        return $this->category;
-    }
-
-    public function setCategory(?Category $category): self
-    {
-        $this->category = $category;
 
         return $this;
     }

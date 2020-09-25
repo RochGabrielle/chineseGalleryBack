@@ -44,9 +44,9 @@ class Article implements TranslatableInterface
     private $price;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="articles")
+     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="articles")
      */
-    private $category;
+    private $product;
 
     /**
      * @ORM\ManyToOne(targetEntity=Artist::class, inversedBy="articles")
@@ -164,14 +164,14 @@ class Article implements TranslatableInterface
         return $this;
     }
 
-    public function getCategory(): ?Category
+    public function getProduct(): ?Product
     {
-        return $this->category;
+        return $this->product;
     }
 
-    public function setCategory(?Category $category): self
+    public function setProduct(?Product $product): self
     {
-        $this->category = $category;
+        $this->product = $product;
 
         return $this;
     }

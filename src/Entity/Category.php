@@ -15,7 +15,6 @@ use Knp\DoctrineBehaviors\Model\Translatable\TranslatableTrait;
 class Category implements TranslatableInterface
 {
     use TranslatableTrait;
-    
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -29,49 +28,18 @@ class Category implements TranslatableInterface
     private $placeholder;
 
     /**
-     * @ORM\OneToMany(targetEntity=Article::class, mappedBy="category")
+     * @ORM\OneToMany(targetEntity=Theme::class, mappedBy="category")
      */
-    private $articles;
+    private $themes;
 
     public function __construct()
     {
-        $this->articles = new ArrayCollection();
+        $this->themes = new ArrayCollection();
     }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    /**
-     * @return Collection|Article[]
-     */
-    public function getArticles(): Collection
-    {
-        return $this->articles;
-    }
-
-    public function addArticle(Article $article): self
-    {
-        if (!$this->articles->contains($article)) {
-            $this->articles[] = $article;
-            $article->setCategory($this);
-        }
-
-        return $this;
-    }
-
-    public function removeArticle(Article $article): self
-    {
-        if ($this->articles->contains($article)) {
-            $this->articles->removeElement($article);
-            // set the owning side to null (unless already changed)
-            if ($article->getCategory() === $this) {
-                $article->setCategory(null);
-            }
-        }
-
-        return $this;
     }
 
     public function getPlaceholder(): ?string
@@ -82,6 +50,37 @@ class Category implements TranslatableInterface
     public function setPlaceholder(string $placeholder): self
     {
         $this->placeholder = $placeholder;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Theme[]
+     */
+    public function getThemes(): Collection
+    {
+        return $this->themes;
+    }
+
+    public function addTheme(Theme $theme): self
+    {
+        if (!$this->themes->contains($theme)) {
+            $this->themes[] = $theme;
+            $theme->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTheme(Theme $theme): self
+    {
+        if ($this->themes->contains($theme)) {
+            $this->themes->removeElement($theme);
+            // set the owning side to null (unless already changed)
+            if ($theme->getCategory() === $this) {
+                $theme->setCategory(null);
+            }
+        }
 
         return $this;
     }

@@ -2,17 +2,18 @@
 
 namespace App\Entity;
 
-use App\Repository\MediaTranslationRepository;
+use App\Repository\ProductTranslationRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Knp\DoctrineBehaviors\Contract\Entity\TranslationInterface;
 use Knp\DoctrineBehaviors\Model\Translatable\TranslationTrait;
 
 /**
- * @ORM\Entity(repositoryClass=MediaTranslationRepository::class)
+ * @ORM\Entity(repositoryClass=ProductTranslationRepository::class)
  */
-class MediaTranslation implements TranslationInterface
+class ProductTranslation implements TranslationInterface
 {
     use TranslationTrait;
+    
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -21,7 +22,7 @@ class MediaTranslation implements TranslationInterface
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=255)
      */
     private $name;
 
@@ -35,7 +36,7 @@ class MediaTranslation implements TranslationInterface
         return $this->name;
     }
 
-    public function setName(?string $name): self
+    public function setName(string $name): self
     {
         $this->name = $name;
 

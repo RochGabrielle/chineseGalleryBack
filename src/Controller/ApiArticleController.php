@@ -11,6 +11,7 @@ use App\Service\FileUploader;
 use App\Entity\Navigation;
 use App\Entity\Material;
 use App\Entity\Category;
+use App\Entity\product;
 use App\Entity\Theme;
 use App\Entity\Sizecategory;
 use App\Entity\Article;
@@ -49,7 +50,7 @@ class ApiArticleController extends Controller
         $entityUpdater->updateEntity($entity, "birth", $content->get("birth"));
         $entityUpdater->updateEntity($entity, "price", $content->get("price"));
 
-        $entitytoUpdate = array("category", "material", "dynasty", "artist","discount", "museum");
+        $entitytoUpdate = array("product", "material", "dynasty", "artist","discount", "museum");
         foreach ($entitytoUpdate as $etu) {
           $entityUpdater->updateEntityWithEntity($entity, $etu, $content->get($etu));
         }
@@ -117,7 +118,7 @@ return $response;
           }
            }
            
-          $simpleElementToReturn = array("category", "material","discount", "museum");
+          $simpleElementToReturn = array("product", "material","discount", "museum");
 
           foreach($simpleElementToReturn as $item) {
             $getter = "get".ucfirst($item);
@@ -148,21 +149,21 @@ return $response;
             );
           }
 
-          $article["media"] = array("id" => 0,
+          $article["category"] = array("id" => 0,
                           "placeholder" => '');
             $article["theme"][] = array( "id" => 0,
                            "placehoder" => '',
-                           "media" => '',
-                           "mediaId" => 0);
+                           "category" => '',
+                           "categoryId" => 0);
           if(null !== $element->getTheme()  && !empty($element->getTheme())) {
 
             foreach($element->getTheme() as $t) {
 $article["theme"][] = array( "id" => null == $t->getId()? '0': $t->getId(),
                            "placehoder" => null == $t->getPlaceholder()? '': $t->getPlaceholder(),
-                           "media" => null == $t->getMedia()? '':$t->getMedia()->getPlaceholder(),
-                           "mediaId" => null == $t->getMedia()? 0:$t->getMedia()->getId());
-$article["media"] = array("id" => null == $t->getMedia()? '':$t->getMedia()->getId(),
-                          "placeholder" => null == $t->getMedia()? 0:$t->getMedia()->getPlaceholder());
+                           "category" => null == $t->getCategory()? '':$t->getCategory()->getPlaceholder(),
+                           "categoryId" => null == $t->getCategory()? 0:$t->getCategory()->getId());
+$article["category"] = array("id" => null == $t->getCategory()? '':$t->getCategory()->getId(),
+                          "placeholder" => null == $t->getCategory()? 0:$t->getCategory()->getPlaceholder());
             }
           } 
           if(null == $element->getTheme() || (null !== $element->getTheme()  && empty($element->getTheme()))) {
@@ -213,14 +214,14 @@ $article["media"] = array("id" => null == $t->getMedia()? '':$t->getMedia()->get
            $theme = '';
            foreach ($themes as $t) {
              $theme = $theme . ' '.$t->getPlaceholder();
-             $article["media"] = null == $t->getMedia()? '': $t->getMedia()->getPlaceholder();
+             $article["category"] = null == $t->getCategory()? '': $t->getCategory()->getPlaceholder();
            }
            $article["theme"] = $theme;
 
            
           $article[$lang] = $element->translate($lang)->getDescription();
           $article["title_cn"] = $element->translate("cn_cn")->getTitle();
-          $simpleElementToReturn = array("category", "material","discount");
+          $simpleElementToReturn = array("product", "material","discount");
 
           foreach($simpleElementToReturn as $item) {
             $getter = "get".ucfirst($item);

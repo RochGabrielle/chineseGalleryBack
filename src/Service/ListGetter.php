@@ -20,11 +20,11 @@ class ListGetter
                         $secondaryList["name_".$lang] = (method_exists($element->translate($lang),'getName'))?$element->translate($lang)->getName():$element->translate($lang)->getDescription() ;
                         }
                 
-                // if it s a theme, the media is returned aswell
+                // if it s a theme, the category is returned aswell
                 if($entityName == 'theme' ) {
-                    if( null !== $element->getMedia()) {
-                    $secondaryList["media"] = $element->getMedia()->getPlaceholder();
-                    $secondaryList["mediaId"] = $element->getMedia()->getId();
+                    if( null !== $element->getCategory()) {
+                    $secondaryList["category"] = $element->getCategory()->getPlaceholder();
+                    $secondaryList["categoryId"] = $element->getCategory()->getId();
                 }
 
                 }

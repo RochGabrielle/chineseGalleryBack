@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use App\Repository\CategoryTranslationRepository;
+use App\Repository\ProductTranslationRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Knp\DoctrineBehaviors\Contract\Entity\TranslationInterface;
 use Knp\DoctrineBehaviors\Model\Translatable\TranslationTrait;
@@ -13,7 +13,6 @@ use Knp\DoctrineBehaviors\Model\Translatable\TranslationTrait;
 class CategoryTranslation implements TranslationInterface
 {
     use TranslationTrait;
-    
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -22,7 +21,7 @@ class CategoryTranslation implements TranslationInterface
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $name;
 
@@ -36,7 +35,7 @@ class CategoryTranslation implements TranslationInterface
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(?string $name): self
     {
         $this->name = $name;
 
