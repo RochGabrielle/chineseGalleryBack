@@ -102,8 +102,9 @@ class ApiMuseumController extends Controller
            //$data = $this->get('jms_serializer')->serialize($translations, 'json');
                 $data = json_encode($museumList) ;
             } else {
-                $data = "no museum";
+                $data = $this->get('jms_serializer')->serialize("no museum", 'json');
             }
+
         $response = new Response($data);
         $response->headers->set('Content-Type', 'application/json');
         return $response;

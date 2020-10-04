@@ -12,12 +12,12 @@ class EntityUpdater
         $this->em = $em;
     }
     
-    /* Update the object $entity to update with the content if the content is different from the
+    /* Update the object $entity to update with the field content if the content is different from the
     existing one or none existant
     */
-    public function updateEntity( Object $entityToUpdate, string $entityName, string $content) {
-  $getter = 'get'.ucfirst($entityName);
-  $setter = 'set'.ucfirst($entityName);
+    public function updateEntity( Object $entityToUpdate, string $fieldName, string $content) {
+  $getter = 'get'.ucfirst($fieldName);
+  $setter = 'set'.ucfirst($fieldName);
   if((null == $entityToUpdate->$getter()) || ($entityToUpdate->$getter() !== $content)) {
    $entityToUpdate->$setter($content);
  }
@@ -187,13 +187,8 @@ public function updateEntityWithJsonField( Object $entityToUpdate, Array $transl
    if(empty($entityToUpdate->translate($lang)->$getter()) || ($entityToUpdate->translate($lang)->$getter() != $translations[$field."_".$lang] )) {
     if(isset($translations[$field."_".$lang]) && $translations[$field."_".$lang] !== '') {
     $entityToUpdate->translate($lang)->$setter($translations[$field."_".$lang]);
-  } else {
-    $entityToUpdate->translate($lang)->$setter('');
+  } 
   }
-  }
-if($lang == 'cn_cn' && $field == 'description') {
-  $entityToUpdate->translate('cn_cn')->$setter('');
-}
 }
 }
 $entityToUpdate->mergeNewTranslations();

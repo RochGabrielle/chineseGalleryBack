@@ -29,12 +29,12 @@ class Artist implements TranslatableInterface
     private $name;
 
     /**
-     * @ORM\Column(type="smallint", nullable=true)
+     * @ORM\Column(type="string", nullable=true)
      */
     private $birth;
 
     /**
-     * @ORM\Column(type="smallint", nullable=true)
+     * @ORM\Column(type="string", nullable=true)
      */
     private $death;
 

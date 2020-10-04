@@ -26,8 +26,11 @@ class ApiElementController extends Controller
   	$content = json_decode($request->getContent(), true);
     $dynastyEntity = 'App\Entity\Dynasty';
     $fields = array("name", "description");
+    $basicFieldList = array("name", "birth", "death");
 
-    if (isset($content["name"]) && 
+    if (isset($content["id"]) &&
+      isset($content["name"]) && 
+      isset($content["name_fr_fr"]) && 
       isset($content["name_cn_cn"]) && 
       isset($content["birth"]) && 
       isset($content["death"]) && 
@@ -38,17 +41,14 @@ class ApiElementController extends Controller
        ($content["entity"] == "artist" && isset($content["dynasty"]))
      )) {
       $entityClass = 'App\Entity\\'.ucfirst($content["entity"]);
+// the default name is the english name
+     $content["name_en_gb"] = $content["name"];
+    $entity = $this->em->getRepository($entityClass)->findOneById($content["id"]);
 
-    $entityManager = $this->getDoctrine()->getManager();
-    $entity = $this->em->getRepository($entityClass)->findOneByName($content["name"]);
-
-    if ($entity) {
-      if($entity->getBirth() != $content["birth"]) {
-       $entity->setBirth($content["birth"]);
-     }
-     if($entity->getDeath($content["death"])!=  $content["death"] ) {
-       $entity->setDeath($content["death"]);
-     }
+    if (null !== $entity) {
+      foreach ($basicFieldList as $bf) {
+        $EntityUpdater->updateEntity($entity,$bf, $content[$bf] );
+      }
 
      $EntityUpdater->updateEntityWithJsonField($entity, $content, $this->getParameter('languages'), $fields);
      
@@ -121,14 +121,14 @@ return $response;
     			$i =0;
     			foreach ($elements as $element){
     				$description = array();
+            $description["id"] = $element->getId();
     				$description["name"] = $element->getName();
     				$description["birth"] = $element->getBirth();
     				$description["death"] = $element->getDeath();
     				foreach ($this->getParameter('languages') as $lang) {
     					$description['description_'.$lang] = $element->translate($lang)->getDescription();
+              $description['name_'.$lang] = $element->translate($lang)->getName();
     				}
-            $description["name_cn_cn"] = $element->translate("cn_cn")->getName();
-
          
             if($entity == "artist") {
               $dynasty = $element->getDynasty();
