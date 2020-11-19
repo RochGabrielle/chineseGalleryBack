@@ -10,6 +10,7 @@ use App\Entity\Artist;
 use App\Entity\Dynasty;
 use App\Service\ListGetter;
 use App\Service\EntityUpdater;
+use App\Service\FileUploader;
 
 
 class ApiElementController extends Controller
@@ -21,81 +22,78 @@ class ApiElementController extends Controller
   /**
      * @Route("/api/admin/add_element", name="add_element", methods={"POST"})
      */
-  public function addElementAction( Request $request, EntityUpdater $EntityUpdater)
+  public function addElementAction( Request $request, EntityUpdater $EntityUpdater, FileUploader $fileUploader)
   {
-  	$content = json_decode($request->getContent(), true);
+  	$content =  $request->request;
     $dynastyEntity = 'App\Entity\Dynasty';
-    $fields = array("name", "description");
+    $fields = array("name", "description","introduction");
     $basicFieldList = array("name", "birth", "death");
 
-    if (isset($content["id"]) &&
-      isset($content["name"]) && 
-      isset($content["name_fr_fr"]) && 
-      isset($content["name_cn_cn"]) && 
-      isset($content["birth"]) && 
-      isset($content["death"]) && 
-      isset($content["description_en_gb"]) &&
-      isset($content["description_fr_fr"]) &&
-      isset($content["entity"]) &&
-      ($content["entity"] == "dynasty" ||
-       ($content["entity"] == "artist" && isset($content["dynasty"]))
-     )) {
-      $entityClass = 'App\Entity\\'.ucfirst($content["entity"]);
+    if (null !== $content->get("id") &&
+      null !== $content->get("name") && 
+      null !== $content->get("name_fr_fr") && 
+      null !== $content->get("name_cn_cn") && 
+      null !== $content->get("birth") && 
+      null !== $content->get("death") && 
+      null !== $content->get("description_en_gb") &&
+      null !== $content->get("description_fr_fr") &&
+      null !== $content->get("introduction_en_gb") &&
+      null !== $content->get("introduction_en_gb") &&
+      null !== $content->get("entity") &&
+      ($content->get("entity") == "dynasty" ||
+       ($content->get("entity") == "artist" && null !== $content->get("dynasty")
+     ))) {
+      $entityClass = 'App\Entity\\'.ucfirst($content->get("entity"));
 // the default name is the english name
-     $content["name_en_gb"] = $content["name"];
-    $entity = $this->em->getRepository($entityClass)->findOneById($content["id"]);
+    $entity = $this->em->getRepository($entityClass)->findOneById($content->get("id"));
 
-    if (null !== $entity) {
+    if (null == $entity) {
+      // if entity doesn't exist create it
+        $entity = new $entityClass();
+      }
+      // Update all field if necessary
+
       foreach ($basicFieldList as $bf) {
-        $EntityUpdater->updateEntity($entity,$bf, $content[$bf] );
+        $EntityUpdater->updateEntity($entity,$bf, $content->get($bf));
       }
 
-     $EntityUpdater->updateEntityWithJsonField($entity, $content, $this->getParameter('languages'), $fields);
+     $EntityUpdater->updateEntityWithField($entity, $content, $this->getParameter('languages'), $fields);
+
      
-    if($content["entity"] == "artist"){
-      if( isset($content["dynasty"]) && null !== $content["dynasty"]) {
+    if($content->get("entity") == "artist"){
+      if( null !== $content->get("dynasty")) {
         $dynastys = $entity->getDynasty();
       $dynastyIdList = array();
+      $selectedDynastys = explode( ',', $content->get("dynasty"));
       foreach($dynastys as $dynasty){
         $dynastyIdList[] = $dynasty->getId();
-        if( !in_array($dynasty->getId(), $content["dynasty"])) {
+        if( !in_array($dynasty->getId(), $selectedDynastys)) {
           $entity->removeDynasty($dynasty);
         }
       }
-      foreach($content["dynasty"] as $dyn) {
-        if(!in_array($this->em->getRepository($dynastyEntity)->findOneById($dyn)->getId(), $dynastyIdList)){
+      foreach ($selectedDynastys as $dyn) {
+        if(null !== $this->em->getRepository($dynastyEntity)->findOneById($dyn) && !in_array($this->em->getRepository($dynastyEntity)->findOneById($dyn)->getId(), $dynastyIdList)){
           $entity->addDynasty($this->em->getRepository($dynastyEntity)->findOneById($dyn));
         }
         
       }
       }
+// Upload of the pictures
+       if(!empty($request->files->get('small'))) {
+          $fileUploader->uploadArtistImage($entity, $request->files->get('small'),'small');
+        }
+        if(!empty($request->files->get('big'))) {
+        $fileUploader->uploadArtistImage($entity, $request->files->get('big'),'big');
+      }
 
     }
-    $content = "update ". $content["entity"];
-
-  } else {
-    $entity = new $entityClass();
-    $entity->setName($content["name"]);
-    $entity->setBirth($content["birth"]);
-    $entity->setDeath($content["death"]);
-    
-     $EntityUpdater->updateEntityWithJsonField($entity, $content, $this->getParameter('languages'), $fields);
-   $entity->translate('cn_cn')->setDescription($content["name_cn_cn"]);
-   $entity->mergeNewTranslations();
-   if($content["entity"] == "artist"){
-    if( isset($content["dynasty"]) && null !== $content["dynasty"]) {
-foreach($content["dynasty"] as $dyn) {
-      $entity->addDynasty($this->em->getRepository($dynastyEntity)->findOneById($dyn));
-    }
-  }
-  }
-  $content = "new ".$content["entity"]." created.";
-}       
+    $content = "update ". $content->get("entity");
+     
 
 $this->em->persist($entity);
 $this->em->flush();
 } else {
- $content = "le json est invalide";
+ $content =  null !== $content->get("id") ;
 }
 $data = $this->get('jms_serializer')->serialize($content, 'json');
 
@@ -106,7 +104,7 @@ return $response;
 
 
     /**
-     * @Route("/api/getElementList/{entity}", name="get_element_list", methods={"GET"})
+     * @Route("/api/admin/getElementList/{entity}", name="get_element_list", methods={"GET"})
      */
     public function getElementListAction( string $entity )
     {
@@ -125,8 +123,11 @@ return $response;
     				$description["name"] = $element->getName();
     				$description["birth"] = $element->getBirth();
     				$description["death"] = $element->getDeath();
+            $description["small"] = $element->getSmall();
+            $description["big"] = $element->getBig();
     				foreach ($this->getParameter('languages') as $lang) {
     					$description['description_'.$lang] = $element->translate($lang)->getDescription();
+              $description['introduction_'.$lang] = $element->translate($lang)->getIntroduction();
               $description['name_'.$lang] = $element->translate($lang)->getName();
     				}
          
@@ -153,20 +154,31 @@ return $response;
     }
 
     /**
-     * @Route("/api/getOneElement/{entity}/{lang}/{name}", name="get_one_element", methods={"GET"})
+     * @Route("/api/getOneElement/{entity}/{lang}/{id}", name="get_one_element", methods={"GET"})
      */
-    public function getOneElementAction( string $entity, string $lang, string $name )
+    public function getOneElementAction( string $entity, string $lang, string $id )
     {
     	$entityClass = 'App\Entity\\'.ucfirst($entity);
 
     	if (class_exists($entityClass)) {
 
-    		$element = $this->em->getRepository($entityClass)->findOneByName($name);
-    		$elementDescriptionTranslation = $element->translate($lang)->getDescription();
+    		$element = $this->em->getRepository($entityClass)->findOneById($id);
 
-    		$data = $this->get('jms_serializer')->serialize($element, 'json');
+        if( null !== $element) {
+          $elementInfo = array();
+          $elementInfo['name'] = $element->getName();
+          $elementInfo['description'] = $element->translate($lang)->getDescription();
+          $elementInfo['big'] = $element->getBig();  // profile picture
+          $elementInfo['birth'] = $element->getBirth();
+          $elementInfo['death'] = $element->getDeath(); 
+          $data = $this->get('jms_serializer')->serialize($elementInfo, 'json');  
+        } else {
+          $data = "this element doesn't exist in database";
+        }
+
+    		
     	} else {
-    		$data = "this element doesn't exist";
+    		$data = "this entity doesn't exist";
     	}
     	$response = new Response($data);
     	$response->headers->set('Content-Type', 'application/json');
@@ -174,21 +186,48 @@ return $response;
     }
 
     /**
-     * @Route("/api/simpleElementList/{entity}", name="get_simple_element_list", methods={"GET"})
+     * @Route("/api/simpleElementList/{entity}/{lang}", name="get_simple_element_list", methods={"GET"})
      */
-    public function getSimpleElementListAction( string $entity, ListGetter $listGetter )
+    public function getSimpleElementListAction (string $entity, string $lang)
     {
-      $entityClass = 'App\Entity\\'.ucfirst($entity);
+        $entityClass = 'App\Entity\\'.ucfirst($entity);
 
       if (class_exists($entityClass)) {
 
         $elements = $this->em->getRepository($entityClass)->findAll();
-       $data = $listGetter->getList($elements);
-     } else {
-      $data = "this element doesn't exist";
-    }
-    $response = new Response($data);
-    $response->headers->set('Content-Type', 'application/json');
-    return $response;
+
+        $elementList = array();
+        if( !empty($elements)) {
+          $i =0;
+          foreach ($elements as $element){
+            $description = array();
+            $description['id'] = $element->getId();
+            $description['name'] = $element->getName();
+            $description['birth'] = $element->getBirth();
+            $description['death'] = $element->getDeath();
+            if ($entity == "artist")
+            {
+              $description['small'] = $element->getSmall();
+              $description['introduction'] = $element->translate($lang)->getIntroduction();
+            }
+            if ($entity == "dynasty")
+            {
+              $description["description"] = $element->translate($lang)->getDescription();
+              $description["open"] = 0;
+              $description["fullDescription"] = false;
+            }
+            
+  
+            $elementList[$i] = $description;
+            $i++;
+          }
+}
+        $data = $this->get('jms_serializer')->serialize($elementList, 'json');
+      
+      } else { $data = "entity ".$entity." doesn't exist.";}
+      $response = new Response($data);
+      $response->headers->set('Content-Type', 'application/json');
+      return $response;
   }
+
 }

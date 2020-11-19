@@ -2,18 +2,18 @@
 
 namespace App\Entity;
 
-use App\Repository\ArtistTranslationRepository;
+use App\Repository\BlogTranslationRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Knp\DoctrineBehaviors\Contract\Entity\TranslationInterface;
 use Knp\DoctrineBehaviors\Model\Translatable\TranslationTrait;
 
+
 /**
- * @ORM\Entity(repositoryClass=ArtistTranslationRepository::class)
+ * @ORM\Entity(repositoryClass=BlogTranslationRepository::class)
  */
-class ArtistTranslation implements TranslationInterface
+class BlogTranslation implements TranslationInterface
 {
     use TranslationTrait;
-    
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -22,46 +22,45 @@ class ArtistTranslation implements TranslationInterface
     private $id;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $description;
+    private $title;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
-    private $name;
+    private $text;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     private $introduction;
-
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getDescription(): ?string
+    public function getTitle(): ?string
     {
-        return $this->description;
+        return $this->title;
     }
 
-    public function setDescription(string $description): self
+    public function setTitle(?string $title): self
     {
-        $this->description = $description;
+        $this->title = $title;
 
         return $this;
     }
 
-    public function getName(): ?string
+    public function getText(): ?string
     {
-        return $this->name;
+        return $this->text;
     }
 
-    public function setName(string $name): self
+    public function setText(?string $text): self
     {
-        $this->name = $name;
+        $this->text = $text;
 
         return $this;
     }
@@ -71,7 +70,7 @@ class ArtistTranslation implements TranslationInterface
         return $this->introduction;
     }
 
-    public function setIntroduction(string $introduction): self
+    public function setIntroduction(?string $introduction): self
     {
         $this->introduction = $introduction;
 

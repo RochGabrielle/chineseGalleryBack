@@ -295,4 +295,42 @@ $response->headers->set('Content-Type', 'application/json');
 return $response;
     }
 
+     /**
+     * @Route("/api/articleListOfArtist/{artistId}/{lang}", name="get_list_of_painting_of_artist", methods={"GET"})
+     */
+    public function getPaintingListOfArtistAction(int $artistId, string $lang)
+    {
+      $entityClass = 'App\Entity\Article';
+      $artistEntity = 'App\Entity\Artist';
+      $artist = $this->em->getRepository($artistEntity)->findOneById($artistId);
+
+      if( null !== $artist) {
+        $paintingList = $this->em->getRepository($entityClass)->findByArtist($artist);
+        $data = array();
+        foreach( $paintingList as $painting) {
+          $paintingInfo = array();
+          $paintingInfo['title'] = $painting->translate($lang)->getTitle();
+          $paintingInfo['artist'] = $artist->translate($lang)->getName();
+          $paintingInfo['dynasty'] = $painting->getDynasty()->translate($lang)->getName();
+          $paintingInfo['bigimage'] = $painting->getBig();          
+          $paintingInfo['smallimage'] = $painting->getSmall();
+          $paintingInfo['description'] = $painting->translate($lang)->getDescription();
+          $paintingInfo['theme'] = [1,2,3];//$painting->getTheme()->getId(); // To fix for filter
+          $paintingInfo['category'] =[1,2,3]; // $painting->getCategory()->getId(); // To fix for filter
+          $data[] = $paintingInfo;
+        }
+        $data = $this->get('jms_serializer')->serialize($data, 'json');
+
+
+
+      } else { $data ="This artist doesn't exist in database";}
+
+      $response = new Response($data);
+
+$response->headers->set('Content-Type', 'application/json');
+return $response;
+}
+
+    
+
 }

@@ -50,4 +50,34 @@ class FileUploader
         $entity->$setter($fileName);
       }
 }
+
+    public function uploadArtistImage(Object $entity, $file, $name_extension) {
+  if( null !== $file) {
+        $dir = './images/artist';
+        $imageName = str_replace(' ', '', $entity->getName());
+        $fileName = $imageName.'_'.$entity->getId().'_'.$name_extension.'.'.$file->guessClientExtension();
+        $setter = 'set'.ucfirst($name_extension);
+         try {
+            $file->move($dir, $fileName);
+        } catch (FileException $e) {
+            // ... handle exception if something happens during file upload
+        }
+        $entity->$setter($fileName);
+      }
+}
+
+ public function uploadBlogImage(Object $entity, $file, $name_extension) {
+  if( null !== $file) {
+        $dir = './images/blog';
+        $imageName = str_replace(' ', '', $entity->getCreationDate()->format('d-m-Y')).'_'. str_replace(' ', '', $entity->getTitle());
+        $fileName = $imageName.'_'.$entity->getId().'_'.$name_extension.'.'.$file->guessClientExtension();
+        $setter = 'set'.ucfirst($name_extension);
+         try {
+            $file->move($dir, $fileName);
+        } catch (FileException $e) {
+            // ... handle exception if something happens during file upload
+        }
+        $entity->$setter($fileName);
+      }
+}
 }
