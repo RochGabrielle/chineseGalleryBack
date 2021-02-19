@@ -48,6 +48,16 @@ class Dynasty implements TranslatableInterface
      */
     private $artists;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $small;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $big;
+
     public function __construct()
     {
         $this->articles = new ArrayCollection();
@@ -150,6 +160,30 @@ class Dynasty implements TranslatableInterface
             $this->artists->removeElement($artist);
             $artist->removeDynasty($this);
         }
+
+        return $this;
+    }
+
+    public function getSmall(): ?string
+    {
+        return $this->small;
+    }
+
+    public function setSmall(string $small): self
+    {
+        $this->small = $small;
+
+        return $this;
+    }
+
+     public function getBig(): ?string
+    {
+        return $this->big;
+    }
+
+    public function setBig(string $big): self
+    {
+        $this->big = $big;
 
         return $this;
     }

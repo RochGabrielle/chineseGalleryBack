@@ -47,19 +47,31 @@ class ApiArticleController extends Controller
           $entity->setReference($content->get('title'));
           $entity->setStatus('1');
         }
-        $entityUpdater->updateEntity($entity, "birth", $content->get("birth"));
+        if (null !== $content->get("birth"))
+        {
+          $entityUpdater->updateEntity($entity, "birth", $content->get("birth"));
+        }
+        if (null !== $content->get("price"))
+        {
         $entityUpdater->updateEntity($entity, "price", $content->get("price"));
-
+        }
+        
         $entitytoUpdate = array("product", "material", "dynasty", "artist","discount", "museum");
         foreach ($entitytoUpdate as $etu) {
-          $entityUpdater->updateEntityWithEntity($entity, $etu, $content->get($etu));
+          if( null !== $content->get($etu))
+          {
+            $entityUpdater->updateEntityWithEntity($entity, $etu, $content->get($etu));
+          }
         }
         if( null !== $content->get("themes")) {
           $t = explode(",", $content->get("themes"));
         $entityUpdater->updateEntityArrayWithEntity($entity, "theme", $t);
         }
-   
-        $entityUpdater->updateEntityWithSizeSizeCategory($entity, $content->get("sizes"));
+        if( null !== $content->get("sizes"))
+        {
+          $entityUpdater->updateEntityWithSizeSizeCategory($entity, $content->get("sizes"));
+        }
+        
 
         $translationToUpdate = array("description", "title");
           $entityUpdater->updateEntityWithField($entity, $content, $this->getParameter('languages'), $translationToUpdate);

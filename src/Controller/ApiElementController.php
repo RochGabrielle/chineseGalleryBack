@@ -27,10 +27,13 @@ class ApiElementController extends Controller
   	$content =  $request->request;
     $dynastyEntity = 'App\Entity\Dynasty';
     $fields = array("name", "description","introduction");
-    $basicFieldList = array("name", "birth", "death");
+    $basicFieldList = array("name","birth", "death");
+    var_dump($content);
+    $result = "element succesfully added";
+   
 
     if (null !== $content->get("id") &&
-      null !== $content->get("name") && 
+      null !== $content->get("name_en_gb") && 
       null !== $content->get("name_fr_fr") && 
       null !== $content->get("name_cn_cn") && 
       null !== $content->get("birth") && 
@@ -38,14 +41,23 @@ class ApiElementController extends Controller
       null !== $content->get("description_en_gb") &&
       null !== $content->get("description_fr_fr") &&
       null !== $content->get("introduction_en_gb") &&
-      null !== $content->get("introduction_en_gb") &&
+      null !== $content->get("introduction_fr_fr") &&
       null !== $content->get("entity") &&
       ($content->get("entity") == "dynasty" ||
        ($content->get("entity") == "artist" && null !== $content->get("dynasty")
      ))) {
       $entityClass = 'App\Entity\\'.ucfirst($content->get("entity"));
 // the default name is the english name
-    $entity = $this->em->getRepository($entityClass)->findOneById($content->get("id"));
+      if($content->get("id") !== '' &&  $content->get("id") !== '0')
+      {
+        $entity = $this->em->getRepository($entityClass)->findOneById($content->get("id"));
+      } else 
+      {
+        $entity = $this->em->getRepository($entityClass)->findOneByName($content->get("name_en_gb"));
+      }
+    
+    $content->set("name", $content->get("name_en_gb"));
+
 
     if (null == $entity) {
       // if entity doesn't exist create it
@@ -87,13 +99,14 @@ class ApiElementController extends Controller
       }
 
     }
-    $content = "update ". $content->get("entity");
+    $result = "update ". $content->get("entity");
      
 
 $this->em->persist($entity);
 $this->em->flush();
 } else {
- $content =  null !== $content->get("id") ;
+  $result =  "bad argument in the request";
+
 }
 $data = $this->get('jms_serializer')->serialize($content, 'json');
 
@@ -230,4 +243,34 @@ return $response;
       return $response;
   }
 
+// this function get id for any type of element
+  /** 
+     * @Route("/api/getOneElementId/{entity}/{param}", name="get_one_element_by_name", methods={"GET"})
+     */
+    public function getOneElemenIdAction (string $entity, string $param)
+    {
+      $return = '';
+      $entityClass = 'App\Entity\\'.ucfirst($entity);
+      if (in_array($entity, ['artist', 'dynasty']))
+      {
+        $element = $this->em->getRepository($entityClass)->findOneByName($param);
+      } elseif (in_array($entity, ['museum', 'category','material', 'discount','product']))
+      {
+        $element = $this->em->getRepository($entityClass)->findOneByPlaceholder($param);
+      } else 
+      {
+        $return = $entity. ' is not a valid entity';
+      }
+      
+      if($element == null) 
+      {
+        $return = "none";
+      } else
+      {
+        $return = $element->getId();
+      }
+      $response = new Response(json_encode($return));
+      $response->headers->set('Content-Type', 'application/json');
+      return $response;
+    }
 }

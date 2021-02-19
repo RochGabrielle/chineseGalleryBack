@@ -18,6 +18,10 @@ class EntityUpdater
     public function updateEntity( Object $entityToUpdate, string $fieldName, string $content) {
   $getter = 'get'.ucfirst($fieldName);
   $setter = 'set'.ucfirst($fieldName);
+  if( $fieldName == 'price')
+  { 
+    $content = floatval($content);
+  }
   if((null == $entityToUpdate->$getter()) || ($entityToUpdate->$getter() !== $content)) {
    $entityToUpdate->$setter($content);
  }

@@ -37,10 +37,15 @@ class ApiMuseumController extends Controller
 
                 $langs =$this->getParameter('languages');
 
-                if (!isset($content["id"]) || $content["id"] == 0 || null == $this->museumRepo->findOneById($content["id"])) {
+                if(isset($content["id"]) && null !== $this->museumRepo->findOneById($content["id"])) 
+                {
+                    $entity = $this->museumRepo->findOneById($content["id"]);
+                } elseif (isset($content["placeholder"]) && null !==  $this->museumRepo->findOneByPlaceholder($content["placeholder"]))
+                {
+                    $entity = $this->museumRepo->findOneByPlaceholder($content["placeholder"]);
+                } else 
+                {
                     $entity = new $entityClass(); 
-                } else {
-                    $entity = $entity = $this->museumRepo->findOneById($content["id"]);
                 }
                     
                     $i = 0;

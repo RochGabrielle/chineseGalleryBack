@@ -31,6 +31,11 @@ class DynastyTranslation implements TranslationInterface
      */
     private $name;
 
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $introduction;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -56,6 +61,18 @@ class DynastyTranslation implements TranslationInterface
     public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getIntroduction(): ?string
+    {
+        return $this->introduction;
+    }
+
+    public function setIntroduction(string $introduction): self
+    {
+        $this->introduction = $introduction;
 
         return $this;
     }
