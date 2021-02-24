@@ -44,6 +44,11 @@ class Article implements TranslatableInterface
     private $price;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $size;
+
+    /**
      * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="articles")
      */
     private $product;
@@ -103,6 +108,11 @@ class Article implements TranslatableInterface
      */
     private $status;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Form::class, inversedBy="articles")
+     */
+    private $form;
+
     public function __construct()
     {
         $this->sizes = new ArrayCollection();
@@ -136,6 +146,18 @@ class Article implements TranslatableInterface
     public function setTitle(string $title): self
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    public function getSize(): ?string
+    {
+        return $this->size;
+    }
+
+    public function setSize(string $size): self
+    {
+        $this->size = $size;
 
         return $this;
     }
@@ -348,6 +370,18 @@ class Article implements TranslatableInterface
     public function setStatus(?int $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getForm(): ?Form
+    {
+        return $this->form;
+    }
+
+    public function setForm(?Form $form): self
+    {
+        $this->form = $form;
 
         return $this;
     }

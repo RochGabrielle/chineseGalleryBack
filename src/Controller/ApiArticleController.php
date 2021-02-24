@@ -38,9 +38,18 @@ class ApiArticleController extends Controller
 
       if ((null !==$content->get('title'))) {
         $entityClass = 'App\Entity\Article';
-
+        // Check if this article already exist if not create it
+        if( null !== $content->get('id') && 0 !== $content->get('id')) 
+        {
+          $entity = $this->em->getRepository($entityClass)->findOneById($content->get('id'));
+        } elseif ( (null !== $content->get("title") && $content->get("title") !== '') && (null !== $content->get("artist") && $content->get("artist") !== ''))
+        {
+          $entity = $this->em->getRepository($entityClass)->findOneBy([
+            "title" => $content->get("title"),
+            "artist" => $content->get("artist")
+          ]);
+        } 
         
-        $entity = $this->em->getRepository($entityClass)->findOneByTitle($content->get("title"));
         if (null == $entity) {
           $entity = new $entityClass();
           $entity->setTitle($content->get('title'));
@@ -55,8 +64,13 @@ class ApiArticleController extends Controller
         {
         $entityUpdater->updateEntity($entity, "price", $content->get("price"));
         }
+
+        if (null !== $content->get("size"))
+        {
+        $entityUpdater->updateEntity($entity, "size", $content->get("size"));
+        }
         
-        $entitytoUpdate = array("product", "material", "dynasty", "artist","discount", "museum");
+        $entitytoUpdate = array("product", "material","form", "dynasty", "artist","discount", "museum");
         foreach ($entitytoUpdate as $etu) {
           if( null !== $content->get($etu))
           {
