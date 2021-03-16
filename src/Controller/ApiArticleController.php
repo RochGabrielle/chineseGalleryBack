@@ -69,6 +69,11 @@ class ApiArticleController extends Controller
         {
         $entityUpdater->updateEntity($entity, "size", $content->get("size"));
         }
+        if (null !== $content->get("highlight"))
+        {
+          $entityUpdater->updateEntity($entity, "highlight", $content->get("highlight"));
+        }
+
         
         $entitytoUpdate = array("product", "material","form", "dynasty", "artist","discount", "museum");
         foreach ($entitytoUpdate as $etu) {
@@ -218,11 +223,15 @@ $article["category"] = array("id" => null == $t->getCategory()? '':$t->getCatego
       $page = '';
       if($type == "gallery") {
         $page = 1;
+        $articles = $this->em->getRepository($entityClass)->findByStatus($page);
       } elseif ($type == "main"){
         $page = 2;
+        $articles = $this->em->getRepository($entityClass)->findByStatus($page);
+      } elseif ($type == "highlight"){
+        $articles = $this->em->getRepository($entityClass)->findByHighlight('1'); // higlighted set to 1
       }
 
-        $articles = $this->em->getRepository($entityClass)->findByStatus($page);
+        
 
         $articleList = array();
         if( !empty($articles)) {

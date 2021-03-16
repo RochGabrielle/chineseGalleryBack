@@ -109,6 +109,11 @@ class Article implements TranslatableInterface
     private $status;
 
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $highlight;
+
+    /**
      * @ORM\ManyToOne(targetEntity=Form::class, inversedBy="articles")
      */
     private $form;
@@ -370,6 +375,18 @@ class Article implements TranslatableInterface
     public function setStatus(?int $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getHighlight(): ?int
+    {
+        return $this->highlight;
+    }
+
+    public function setHighlight(?int $highlight): self
+    {
+        $this->status = $highlight;
 
         return $this;
     }
