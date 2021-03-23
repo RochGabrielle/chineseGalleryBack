@@ -39,6 +39,7 @@ class ApiArticleController extends Controller
       if ((null !==$content->get('title'))) {
         $entityClass = 'App\Entity\Article';
         // Check if this article already exist if not create it
+        $entity = null;
         if( null !== $content->get('id') && 0 !== $content->get('id')) 
         {
           $entity = $this->em->getRepository($entityClass)->findOneById($content->get('id'));

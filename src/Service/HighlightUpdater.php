@@ -5,7 +5,7 @@ namespace App\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class StatusUpdater
+class HighlightUpdater
 {
 
 	public function __construct(EntityManagerInterface $em) {
@@ -13,7 +13,7 @@ class StatusUpdater
     }
 
     /**
-    *Update the status of the entity with the content
+    *Update the Highlight of the entity with the content
     **/
     public function updateHighlight(Request $request) {
 

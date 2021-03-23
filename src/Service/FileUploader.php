@@ -5,6 +5,8 @@ namespace App\Service;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Doctrine\ORM\EntityManagerInterface;
+use Jeremytubbs\Deepzoom\Deepzoom;
+use Jeremytubbs\Deepzoom\DeepzoomFactory;
 
 class FileUploader
 {
@@ -48,6 +50,7 @@ class FileUploader
             // ... handle exception if something happens during file upload
         }
         $entity->$setter($fileName);
+        $this->createDZIFile($file);
       }
 }
 
@@ -80,4 +83,18 @@ class FileUploader
         $entity->$setter($fileName);
       }
 }
+
+/**
+ * Use deepzoom plugin to create zoomable DZI file for seadragon plugin
+ */
+public function createDZIFile($file)
+    {
+        $deepzoom = DeepzoomFactory::create([
+            'path' => 'images', // Export path for tiles
+            'driver' => 'imagick', // Choose between gd and imagick support.
+            'format' => 'jpg',
+        ]);
+        // folder, file are optional and will default to filename
+        $response = $deepzoom->makeTiles($file, 'file', 'folder');
+    }
 }
