@@ -5,8 +5,8 @@ file({
         Overlap: 1,
         TileSize: 256,
         Size: {
-            Width: 255,
-            Height: 208
+            Width: 4000,
+            Height: 3000
         }
     }
 });

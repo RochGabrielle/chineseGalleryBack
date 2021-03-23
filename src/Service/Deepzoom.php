@@ -44,7 +44,7 @@ class Deepzoom
     {
         // path to a test image
         var_dump($image);
-        $img = $this->imageManager->make('E:\chinesefineartgallery\Symfony\mountain_moon_galery\public\images\testimage__big.png');
+        $img = $this->imageManager->make('C:\rechercheColoc\bureau1.jpg');
    
         // get image width and height
         $height = $img->height();
