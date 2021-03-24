@@ -49,7 +49,11 @@ class ApiArticleController extends Controller
             "title" => $content->get("title"),
             "artist" => $content->get("artist")
           ]);
-        } 
+        } elseif ( (null !== $content->get("title") && $content->get("title") !== '') && null !== $this->em->getRepository($entityClass)->findOneByTitle(
+          $content->get("title")) )
+          {
+            $entity = $this->em->getRepository($entityClass)->findOneByTitle($content->get("title"));
+          }
         
         if (null == $entity) {
           $entity = new $entityClass();

@@ -42,9 +42,11 @@ class Deepzoom
      */
     public function makeTiles($image, $file = NULL, $folder = NULL)
     {
-        // path to a test image
         var_dump($image);
-        $img = $this->imageManager->make('C:\rechercheColoc\bureau1.jpg');
+        var_dump($file);
+        
+        // path to a test image
+        $img = $this->imageManager->make('C:\chineseFineArtGallery\chineseGalleryBack\public\images\reza_5_big.jpeg');
    
         // get image width and height
         $height = $img->height();
@@ -58,7 +60,7 @@ class Deepzoom
         // set filename or use path filename
         $filename = $file !== NULL ? $file : pathinfo($image)['filename'];
         $filename = $this->cleanupFilename($filename);
-
+var_dump(pathinfo($image)['filename']);
         // set folder or use path filename
         $foldername = $folder !== NULL ? $folder : pathinfo($image)['filename'];
         $foldername = $this->cleanupFolderName($foldername);

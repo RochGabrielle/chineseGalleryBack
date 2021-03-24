@@ -7,15 +7,18 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Doctrine\ORM\EntityManagerInterface;
 use Jeremytubbs\Deepzoom\Deepzoom;
 use Jeremytubbs\Deepzoom\DeepzoomFactory;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class FileUploader
 {
     private $targetDirectory;
+    private $params;
 
-    public function __construct($targetDirectory, EntityManagerInterface $em )
+    public function __construct($targetDirectory, EntityManagerInterface $em, ParameterBagInterface $params )
     {
         $this->targetDirectory = $targetDirectory;
         $this->em = $em;
+        $this->params = $params;
     }
 
     public function upload(UploadedFile $file)
@@ -43,14 +46,21 @@ class FileUploader
         $dir = './images';
         $imageName = str_replace(' ', '', $entity->getTitle());
         $fileName = $imageName.'_'.$entity->getId().'_'.$name_extension.'.'.$file->guessClientExtension();
+        $folderName = $imageName.'_'.$entity->getId().'_'.$name_extension;
+       //$fileName = $imageName.'_'.$entity->getId().'_'.$name_extension;
+       var_dump('before file is moving?');
         $setter = 'set'.ucfirst($name_extension);
          try {
             $file->move($dir, $fileName);
+            var_dump('file is moving?');
         } catch (FileException $e) {
             // ... handle exception if something happens during file upload
+            var_dump($e);
         }
-        $entity->$setter($fileName);
-        $this->createDZIFile($file);
+        $entity->$setter($folderName);
+        $this->params->get('images_dir');
+        var_dump($this->params->get('images_dir').$fileName);
+        $this->createDZIFile($this->params->get('images_dir').$fileName, $folderName);
       }
 }
 
@@ -87,7 +97,7 @@ class FileUploader
 /**
  * Use deepzoom plugin to create zoomable DZI file for seadragon plugin
  */
-public function createDZIFile($file)
+public function createDZIFile($file, $folder)
     {
         $deepzoom = DeepzoomFactory::create([
             'path' => 'images', // Export path for tiles
@@ -95,6 +105,9 @@ public function createDZIFile($file)
             'format' => 'jpg',
         ]);
         // folder, file are optional and will default to filename
-        $response = $deepzoom->makeTiles($file, 'file', 'folder');
+        var_dump($file);
+        //$file = 'C:\chineseFineArtGallery\chineseGalleryBack\public\images\maralago_13_big.jpeg';
+        //$filee = $file;
+        $response = $deepzoom->makeTiles($file, $folder, $folder);
     }
 }

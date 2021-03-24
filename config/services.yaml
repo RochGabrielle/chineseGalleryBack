@@ -6,6 +6,7 @@
 parameters:
     images_directory: '%kernel.project_dir%/public/uploads/images'
     languages: ['en_gb', 'fr_fr', 'cn_cn']
+    images_dir: 'C:\chineseFineArtGallery\chineseGalleryBack\public\images\'
 services:
     # default configuration for services in *this* file
     _defaults:
