@@ -41,7 +41,7 @@ class FileUploader
         return $this->targetDirectory;
     }
 
-    public function uploadImage(Object $entity, $file, $name_extension) {
+    public function uploadBigImage(Object $entity, $file, $name_extension) {
   if( null !== $file) {
         $dir = './images';
         $imageName = str_replace(' ', '', $entity->getTitle());
@@ -51,27 +51,43 @@ class FileUploader
        var_dump('before file is moving?');
         $setter = 'set'.ucfirst($name_extension);
          try {
-            $file->move($dir, $fileName);
+            $file->move($this->params->get('images_dir'), $fileName);            
+            //$file->move($dir, $fileName);
             var_dump('file is moving?');
         } catch (FileException $e) {
             // ... handle exception if something happens during file upload
             var_dump($e);
         }
         $entity->$setter($folderName);
-        $this->params->get('images_dir');
-        var_dump($this->params->get('images_dir').$fileName);
         $this->createDZIFile($this->params->get('images_dir').$fileName, $folderName);
       }
 }
 
+public function uploadSmallImage(Object $entity, $file, $name_extension) {
+    if( null !== $file) {
+          $dir = './images';
+          $imageName = str_replace(' ', '', $entity->getTitle());
+          $fileName = $imageName.'_'.$entity->getId().'_'.$name_extension.'.'.$file->guessClientExtension();
+          $setter = 'set'.ucfirst($name_extension);
+           try {
+              $file->move($this->params->get('images_dir'), $fileName);            
+              //$file->move($dir, $fileName);
+              var_dump('file is moving?');
+          } catch (FileException $e) {
+              // ... handle exception if something happens during file upload
+              var_dump($e);
+          }
+          $entity->$setter($fileName);
+        }
+  }
+
     public function uploadArtistImage(Object $entity, $file, $name_extension) {
   if( null !== $file) {
-        $dir = './images/artist';
         $imageName = str_replace(' ', '', $entity->getName());
         $fileName = $imageName.'_'.$entity->getId().'_'.$name_extension.'.'.$file->guessClientExtension();
         $setter = 'set'.ucfirst($name_extension);
          try {
-            $file->move($dir, $fileName);
+            $file->move($this->params->get('images_dir').'artist', $fileName);
         } catch (FileException $e) {
             // ... handle exception if something happens during file upload
         }
@@ -81,12 +97,12 @@ class FileUploader
 
  public function uploadBlogImage(Object $entity, $file, $name_extension) {
   if( null !== $file) {
-        $dir = './images/blog';
+       
         $imageName = str_replace(' ', '', $entity->getCreationDate()->format('d-m-Y')).'_'. str_replace(' ', '', $entity->getTitle());
         $fileName = $imageName.'_'.$entity->getId().'_'.$name_extension.'.'.$file->guessClientExtension();
         $setter = 'set'.ucfirst($name_extension);
          try {
-            $file->move($dir, $fileName);
+            $file->move($this->params->get('images_dir').'blog', $fileName);
         } catch (FileException $e) {
             // ... handle exception if something happens during file upload
         }
@@ -106,6 +122,7 @@ public function createDZIFile($file, $folder)
         ]);
         // folder, file are optional and will default to filename
         var_dump($file);
+        var_dump($folder);
         //$file = 'C:\chineseFineArtGallery\chineseGalleryBack\public\images\maralago_13_big.jpeg';
         //$filee = $file;
         $response = $deepzoom->makeTiles($file, $folder, $folder);

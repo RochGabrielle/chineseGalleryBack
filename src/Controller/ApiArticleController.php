@@ -59,24 +59,28 @@ class ApiArticleController extends Controller
           $entity = new $entityClass();
           $entity->setTitle($content->get('title'));
           $entity->setReference($content->get('title'));
-          $entity->setStatus('1');
-        }
-        if (null !== $content->get("birth"))
-        {
-          $entityUpdater->updateEntity($entity, "birth", $content->get("birth"));
-        }
-        if (null !== $content->get("price"))
-        {
-        $entityUpdater->updateEntity($entity, "price", $content->get("price"));
         }
 
-        if (null !== $content->get("size"))
+        $entityToUpdate = ['birth', 'price', 'size', 'highlight', 'status'];
+
+        foreach($entityToUpdate as $etu )
         {
-        $entityUpdater->updateEntity($entity, "size", $content->get("size"));
-        }
-        if (null !== $content->get("highlight"))
-        {
-          $entityUpdater->updateEntity($entity, "highlight", $content->get("highlight"));
+          if (null !== $content->get($etu))
+          {
+            $entityUpdater->updateEntity($entity, $etu, $content->get($etu));
+          } else 
+          {
+            if( $etu == "price")
+            {
+              $entityUpdater->updateEntity($entity, $etu, "not for sale at the moment");
+            } elseif ($etu == "highlight" || $etu == "status" )
+            {
+              $entityUpdater->updateEntity($entity, $etu, "0");
+            } else
+            {
+              $entityUpdater->updateEntity($entity, $etu, "unknown");
+            }    
+          }
         }
 
         
@@ -85,6 +89,9 @@ class ApiArticleController extends Controller
           if( null !== $content->get($etu))
           {
             $entityUpdater->updateEntityWithEntity($entity, $etu, $content->get($etu));
+          } else 
+          {
+            $entityUpdater->updateEntityWithEntity($entity, $etu, "1"); // set to unknown
           }
         }
         if( null !== $content->get("themes")) {
@@ -102,10 +109,10 @@ class ApiArticleController extends Controller
         
         //$entityUpdater->updateArticleWithTitle($entity, $content, $this->getParameter('languages'));
         if(!empty($request->files->get('small'))) {
-          $fileUploader->uploadImage($entity, $request->files->get('small'),'small');
+          $fileUploader->uploadSmallImage($entity, $request->files->get('small'),'small');
         }
         if(!empty($request->files->get('big'))) {
-        $fileUploader->uploadImage($entity, $request->files->get('big'),'big');
+        $fileUploader->uploadBigImage($entity, $request->files->get('big'),'big');
       }
         $this->em->persist($entity);
         $this->em->flush();        
@@ -146,6 +153,8 @@ return $response;
            $article["status"] = $element->getStatus();
            $article["smallimage"] = $element->getSmall();
            $article["bigimage"] = $element->getBig();
+           $article["highlight"] = $element->getHighlight();
+           $article["size"] = $element->getSize();
            $traductionList = array("description", "title");
            foreach ($traductionList as $tl) {
             $getter = "get".ucfirst($tl);
@@ -154,7 +163,7 @@ return $response;
           }
            }
            
-          $simpleElementToReturn = array("product", "material","discount", "museum");
+          $simpleElementToReturn = array("product", "material","discount", "museum", "form");
 
           foreach($simpleElementToReturn as $item) {
             $getter = "get".ucfirst($item);
@@ -174,7 +183,7 @@ return $response;
           }
           }
 
-
+/*
           $sizes = $element->getSizes();
           foreach($sizes as $s) {
             $article["sizes"][] = array("id" => $s->getId(), 
@@ -184,7 +193,7 @@ return $response;
               "sizecategory" =>  null == $s->getSizecategory() ? "undefined":$s->getSizecategory()->getPlaceholder()
             );
           }
-
+*/
           $article["category"] = array("id" => 0,
                           "placeholder" => '');
             $article["theme"][] = array( "id" => 0,
@@ -325,14 +334,32 @@ return $response;
      */
     public function updateStatusAction( Request $request, StatusUpdater $statusUpdater)
     {
+      
       $statusUpdater->updateStatus($request);
       $responseMessage ="Status has been updated";
       $data = $this->get('jms_serializer')->serialize($responseMessage, 'json');
 
-$response = new Response($data);
+      $response = new Response($data);
 
-$response->headers->set('Content-Type', 'application/json');
-return $response;
+      $response->headers->set('Content-Type', 'application/json');
+      return $response;
+    }
+
+    /**
+     * is equal to 1 if the article is a highlight
+     * @IsGranted("ROLE_ADMIN")
+     * @Route("/api/admin/highlight", name="update_highlight", methods={"POST"})
+     */
+    public function updateHighlightAction( Request $request, StatusUpdater $statusUpdater)
+    {
+      $statusUpdater->updateHighlight($request);
+      $responseMessage ="Highlight has been updated";
+      $data = $this->get('jms_serializer')->serialize($responseMessage, 'json');
+
+      $response = new Response($data);
+
+      $response->headers->set('Content-Type', 'application/json');
+      return $response;
     }
 
      /**

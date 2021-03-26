@@ -34,17 +34,17 @@ class Article implements TranslatableInterface
     private $title;
 
     /**
-     * @ORM\Column(type="smallint", nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $birth;
 
     /**
-     * @ORM\Column(type="float", nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $price;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $size;
 
@@ -167,24 +167,24 @@ class Article implements TranslatableInterface
         return $this;
     }
 
-    public function getBirth(): ?int
+    public function getBirth(): ?string
     {
         return $this->birth;
     }
 
-    public function setBirth(?int $birth): self
+    public function setBirth(?string $birth): self
     {
         $this->birth = $birth;
 
         return $this;
     }
 
-    public function getPrice(): ?float
+    public function getPrice(): ?string
     {
         return $this->price;
     }
 
-    public function setPrice(float $price): self
+    public function setPrice(string $price): self
     {
         $this->price = $price;
 
@@ -386,7 +386,7 @@ class Article implements TranslatableInterface
 
     public function setHighlight(?int $highlight): self
     {
-        $this->status = $highlight;
+        $this->highlight = $highlight;
 
         return $this;
     }

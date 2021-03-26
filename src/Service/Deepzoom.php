@@ -42,12 +42,12 @@ class Deepzoom
      */
     public function makeTiles($image, $file = NULL, $folder = NULL)
     {
-        var_dump($image);
-        var_dump($file);
+        var_dump('path to file: '.$image);
+        var_dump('name of folder: '.$file);
         
         // path to a test image
-        $img = $this->imageManager->make('C:\chineseFineArtGallery\chineseGalleryBack\public\images\reza_5_big.jpeg');
-   
+        $img = $this->imageManager->make($image);
+   var_dump('image made');
         // get image width and height
         $height = $img->height();
         $width = $img->width();
