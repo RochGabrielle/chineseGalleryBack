@@ -79,7 +79,7 @@ class Article implements TranslatableInterface
     private $sizes;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Theme::class, inversedBy="articles")
+     * @ORM\ManyToOne(targetEntity=Theme::class, inversedBy="articles")
      */
     private $theme;
 
@@ -122,7 +122,6 @@ class Article implements TranslatableInterface
     {
         $this->sizes = new ArrayCollection();
         $this->size_category = new ArrayCollection();
-        $this->theme = new ArrayCollection();
         $this->users = new ArrayCollection();
     }
 
@@ -277,28 +276,14 @@ class Article implements TranslatableInterface
         return $this;
     }
 
-    /**
-     * @return Collection|Theme[]
-     */
-    public function getTheme(): Collection
+    public function getTheme(): ?Theme
     {
         return $this->theme;
     }
 
-    public function addTheme(Theme $theme): self
+    public function setTheme(?Theme $theme): self
     {
-        if (!$this->theme->contains($theme)) {
-            $this->theme[] = $theme;
-        }
-
-        return $this;
-    }
-
-    public function removeTheme(Theme $theme): self
-    {
-        if ($this->theme->contains($theme)) {
-            $this->theme->removeElement($theme);
-        }
+        $this->theme = $theme;
 
         return $this;
     }

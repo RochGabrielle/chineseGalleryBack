@@ -245,7 +245,7 @@ return $response;
 
 // this function get id for any type of element
   /** 
-     * @Route("/api/getOneElementId/{entity}/{param}", name="get_one_element_by_name", methods={"GET"})
+     * @Route("/api/admin/getOneElementId/{entity}/{param}", name="get_one_element_by_name", methods={"GET"})
      */
     public function getOneElemenIdAction (string $entity, string $param)
     {
@@ -254,7 +254,7 @@ return $response;
       if (in_array($entity, ['artist', 'dynasty']))
       {
         $element = $this->em->getRepository($entityClass)->findOneByName($param);
-      } elseif (in_array($entity, ['museum', 'category','material', 'discount','product']))
+      } elseif (in_array($entity, ['museum', 'category','material', 'discount','product','form','theme']))
       {
         $element = $this->em->getRepository($entityClass)->findOneByPlaceholder($param);
       } else 

@@ -29,14 +29,10 @@ class Theme implements TranslatableInterface
     private $placeholder;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Article::class, mappedBy="theme")
+     * @ORM\OneToMany(targetEntity=Article::class, mappedBy="theme")
      */
     private $articles;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="themes")
-     */
-    private $category;
 
     public function __construct()
     {
@@ -88,15 +84,4 @@ class Theme implements TranslatableInterface
         return $this;
     }
 
-    public function getCategory(): ?Category
-    {
-        return $this->category;
-    }
-
-    public function setCategory(?Category $category): self
-    {
-        $this->category = $category;
-
-        return $this;
-    }
 }

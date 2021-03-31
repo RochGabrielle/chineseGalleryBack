@@ -40,10 +40,15 @@ class ApiArticleController extends Controller
         $entityClass = 'App\Entity\Article';
         // Check if this article already exist if not create it
         $entity = null;
-        if( null !== $content->get('id') && 0 !== $content->get('id')) 
+        if( null !== $content->get('id') && 0 !== $content->get('id') && null !== $this->em->getRepository($entityClass)->findOneById($content->get('id'))) 
         {
           $entity = $this->em->getRepository($entityClass)->findOneById($content->get('id'));
-        } elseif ( (null !== $content->get("title") && $content->get("title") !== '') && (null !== $content->get("artist") && $content->get("artist") !== ''))
+        } elseif ( (null !== $content->get("title") && $content->get("title") !== '') && (null !== $content->get("artist") && $content->get("artist") !== '')
+          && null !== $this->em->getRepository($entityClass)->findOneBy([
+            "title" => $content->get("title"),
+            "artist" => $content->get("artist")
+          ])
+        )
         {
           $entity = $this->em->getRepository($entityClass)->findOneBy([
             "title" => $content->get("title"),
@@ -84,16 +89,17 @@ class ApiArticleController extends Controller
         }
 
         
-        $entitytoUpdate = array("product", "material","form", "dynasty", "artist","discount", "museum");
+        $entitytoUpdate = array("product", "material","form", "dynasty", "artist","discount", "museum", "theme");
         foreach ($entitytoUpdate as $etu) {
           if( null !== $content->get($etu))
           {
-            $entityUpdater->updateEntityWithEntity($entity, $etu, $content->get($etu));
+            $entityUpdater->updateEntityWithEntity($entity, $etu, null !== $content->get($etu) ? $content->get($etu) : "1");
           } else 
           {
             $entityUpdater->updateEntityWithEntity($entity, $etu, "1"); // set to unknown
           }
         }
+        /*
         if( null !== $content->get("themes")) {
           $t = explode(",", $content->get("themes"));
         $entityUpdater->updateEntityArrayWithEntity($entity, "theme", $t);
@@ -102,7 +108,7 @@ class ApiArticleController extends Controller
         {
           $entityUpdater->updateEntityWithSizeSizeCategory($entity, $content->get("sizes"));
         }
-        
+        */
 
         $translationToUpdate = array("description", "title");
           $entityUpdater->updateEntityWithField($entity, $content, $this->getParameter('languages'), $translationToUpdate);
@@ -163,7 +169,7 @@ return $response;
           }
            }
            
-          $simpleElementToReturn = array("product", "material","discount", "museum", "form");
+          $simpleElementToReturn = array("product", "material","discount", "museum", "form", "theme");
 
           foreach($simpleElementToReturn as $item) {
             $getter = "get".ucfirst($item);
@@ -194,6 +200,7 @@ return $response;
             );
           }
 */
+/* 
           $article["category"] = array("id" => 0,
                           "placeholder" => '');
             $article["theme"][] = array( "id" => 0,
@@ -215,6 +222,8 @@ $article["category"] = array("id" => null == $t->getCategory()? '':$t->getCatego
             dd('in the condition');
                        
           }
+*/
+
           $articleList[] = $article;
           }   
         }
@@ -259,18 +268,18 @@ $article["category"] = array("id" => null == $t->getCategory()? '':$t->getCatego
            $article["status"] = $element->getStatus();
            $article["smallimage"] = $element->getSmall();
            $article["bigimage"] = $element->getBig();
-           $themes = $element->getTheme();
+          /* $themes = $element->getTheme();
            $theme = '';
            foreach ($themes as $t) {
              $theme = $theme . ' '.$t->getPlaceholder();
              $article["category"] = null == $t->getCategory()? '': $t->getCategory()->getPlaceholder();
            }
            $article["theme"] = $theme;
-
+           */
            
           $article[$lang] = $element->translate($lang)->getDescription();
           $article["title_cn"] = $element->translate("cn_cn")->getTitle();
-          $simpleElementToReturn = array("product", "material","discount");
+          $simpleElementToReturn = array("product", "material","discount", "form", "theme");
 
           foreach($simpleElementToReturn as $item) {
             $getter = "get".ucfirst($item);
@@ -374,18 +383,22 @@ return $response;
       if( null !== $artist) {
         $paintingList = $this->em->getRepository($entityClass)->findByArtist($artist);
         $data = array();
-        foreach( $paintingList as $painting) {
-          $paintingInfo = array();
-          $paintingInfo['title'] = $painting->translate($lang)->getTitle();
-          $paintingInfo['artist'] = $artist->translate($lang)->getName();
-          $paintingInfo['dynasty'] = $painting->getDynasty()->translate($lang)->getName();
-          $paintingInfo['bigimage'] = $painting->getBig();          
-          $paintingInfo['smallimage'] = $painting->getSmall();
-          $paintingInfo['description'] = $painting->translate($lang)->getDescription();
-          $paintingInfo['theme'] = [1,2,3];//$painting->getTheme()->getId(); // To fix for filter
-          $paintingInfo['category'] =[1,2,3]; // $painting->getCategory()->getId(); // To fix for filter
-          $data[] = $paintingInfo;
+        if( null !== $paintingList) {
+          foreach( $paintingList as $painting) {
+            $paintingInfo = array();
+            $paintingInfo['title'] = $painting->translate($lang)->getTitle();
+            $paintingInfo['artist'] = $artist->translate($lang)->getName();
+            $paintingInfo['dynasty'] = $painting->getDynasty()->translate($lang)->getName();
+            $paintingInfo['bigimage'] = $painting->getBig();          
+            $paintingInfo['smallimage'] = $painting->getSmall();
+            $paintingInfo['description'] = null !== $painting->translate($lang)->getDescription() ? $painting->translate($lang)->getDescription() : '';
+            $paintingInfo['theme'] = null !== $painting->getTheme() ? $painting->getTheme()->getId() : '1'; // To fix for filter
+            $paintingInfo['form'] = null !== $painting->getForm() ? $painting->getForm()->getId() : '1';
+           // $paintingInfo['category'] =[1,2,3]; // $painting->getCategory()->getId(); // To fix for filter
+            $data[] = $paintingInfo;
+          }
         }
+        
         $data = $this->get('jms_serializer')->serialize($data, 'json');
 
 

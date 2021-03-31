@@ -21,13 +21,13 @@ class ListGetter
                         }
                 
                 // if it s a theme, the category is returned aswell
-                if($entityName == 'theme' ) {
+       /*         if($entityName == 'theme' ) {
                     if( null !== $element->getCategory()) {
                     $secondaryList["category"] = $element->getCategory()->getPlaceholder();
                     $secondaryList["categoryId"] = $element->getCategory()->getId();
                 }
 
-                }
+                } */
                 if($entityName == 'discount' ) {
                     $secondaryList["discountrate"] = $element->getDiscountrate();
                     $secondaryList["discountrate"] = $element->getDiscountrate();

@@ -1,0 +1,41 @@
+Installation requirement:
+
+backoffice
+Php 7.4.8
+symfony 4.4
+Mysql
+
+déploy sources and launch:
+composer install
+
+front office:
+angular 11
+
+deploy sources and launch:
+ng update
+
+
+
+install php module image magick for picture visualisation:
+https://herbmiller.me/installing-imagick-php-7/
+
+Adding new content in admin menu via .csv files:
+
+Headers for simple translation category :navigation, material, form, theme, product :
+
+id	placeholder	name_en_gb	name_fr_fr
+
+Headers for : museum
+
+id	placeholder	name_en_gb	name_fr_fr	name_cn_cn	link	linkname
+
+Headers for : Artist
+
+
+Headers for : Dynasty
+
+Headers for : Article
+
+
+
+
