@@ -3,6 +3,6 @@
        Format="jpg"
        Overlap="1"
        TileSize="256" >
-    <Size Height="2014"
-          Width="992" />
+    <Size Height="1985"
+          Width="2014" />
 </Image>

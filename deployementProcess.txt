@@ -31,11 +31,15 @@ id	placeholder	name_en_gb	name_fr_fr	name_cn_cn	link	linkname
 
 Headers for : Artist
 
+id    name_en_gb   name_fr_fr	name_cn_cn	birth   death	 description_en_gb  description_fr_fr	description_cn_cn  introduction_en_gb     introduction_fr_fr	introduction_cn_cn   dynasty
 
 Headers for : Dynasty
 
+id    name_en_gb    name_fr_fr	name_cn_cn  birth    death    description_en_gb	   description_fr_fr	description_cn_cn  introduction_en_gb     introduction_fr_fr	introduction_cn_cn
+
+
 Headers for : Article
 
-
+id   title   title_en_gb   title_fr_fr   title_cn_cn    price   birth   size    description_en_gb    description_fr_fr    description_cn_cn    highlight    museum    theme    material     discount    artist   dynasty    product   form
 
 

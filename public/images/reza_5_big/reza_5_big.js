@@ -5,8 +5,8 @@ reza_5_big({
         Overlap: 1,
         TileSize: 256,
         Size: {
-            Width: 992,
-            Height: 2014
+            Width: 2014,
+            Height: 1985
         }
     }
 });
