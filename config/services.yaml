@@ -4,13 +4,13 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    #images_directory: '%kernel.project_dir%/public/uploads/images'
+    images_directory: '%kernel.project_dir%/public/uploads/images'
     languages: ['en_gb', 'fr_fr', 'cn_cn']
     # PC portable
-    #images_dir: 'C:\chineseFineArtGallery\angular\chinesegaleryfront\src\assets\img\'
+    images_dir: 'C:\chineseFineArtGallery\angular\chinesegaleryfront\src\assets\img\'
     # PC graphisme
-    images_dir: 'E:\chinesefineartgallery\angular\chinesegaleryfront\src\assets\img\'
-    images_directory: 'E:\chinesefineartgallery\angular\chinesegaleryfront\src\assets\img'
+    #images_dir: 'E:\chinesefineartgallery\angular\chinesegaleryfront\src\assets\img\'
+    #images_directory: 'E:\chinesefineartgallery\angular\chinesegaleryfront\src\assets\img'
 
 services:
     # default configuration for services in *this* file
