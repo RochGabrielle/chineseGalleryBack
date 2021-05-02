@@ -243,6 +243,7 @@ $article["category"] = array("id" => null == $t->getCategory()? '':$t->getCatego
     public function getArticleGalleryAction($type, $lang)
     {
       $entityClass = 'App\Entity\Article';
+      $artistClass = 'App\Entity\Artist';
       $page = '';
       if($type == "gallery") {
         $page = 1;
@@ -252,6 +253,10 @@ $article["category"] = array("id" => null == $t->getCategory()? '':$t->getCatego
         $articles = $this->em->getRepository($entityClass)->findByStatus($page);
       } elseif ($type == "highlight"){
         $articles = $this->em->getRepository($entityClass)->findByHighlight('1'); // higlighted set to 1
+      } elseif (is_numeric($type)){
+        $artist = $this->em->getRepository($artistClass)->findOneById($type);
+        if(null !==$artist)
+        $articles = $this->em->getRepository($entityClass)->findByArtist($artist);
       }
 
         
