@@ -19,6 +19,7 @@ use App\Entity\Size;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use App\Service\EntityUpdater;
 use App\Service\StatusUpdater;
+use App\Service\ListGetter;
 
 
 
@@ -137,9 +138,9 @@ return $response;
 
 
     /**
-     * @Route("/api/articlelist", name="get_article_list", methods={"GET"})
+     * @Route("/api/admin/articlelist", name="get_article_list", methods={"GET"})
      */
-    public function getArticleListAction()
+    public function getArticleListAction(ListGetter $listGetter)
     {
       $entityClass = 'App\Entity\Article';
 
@@ -150,87 +151,15 @@ return $response;
         $articleList = array();
         if( !empty($articles)) {
           $i =0;
-          foreach ($articles as $element){
-           $article = array();
-           $article["id"] = $element->getId();
-           $article["title"] = $element->getTitle();
-           $article["birth"] = $element->getBirth();
-           $article["price"] = $element->getPrice();
-           $article["status"] = $element->getStatus();
-           $article["smallimage"] = $element->getSmall();
-           $article["bigimage"] = $element->getBig();
-           $article["highlight"] = $element->getHighlight();
-           $article["size"] = $element->getSize();
-           $traductionList = array("description", "title");
-           foreach ($traductionList as $tl) {
-            $getter = "get".ucfirst($tl);
-             foreach ($this->getParameter('languages') as $lang) {
-            $article[$tl."_".$lang] = $element->translate($lang)->$getter();
-          }
-           }
-           
-          $simpleElementToReturn = array("product", "material","discount", "museum", "form", "theme");
-
-          foreach($simpleElementToReturn as $item) {
-            $getter = "get".ucfirst($item);
-            if( null !== $element->$getter()) {
-            $article[$item][] = array("id" => $element->$getter()->getId(), "placeholder" => $element->$getter()->getPlaceholder());
-          } else {
-            $article[$item][] = array("id" => 0, "placeholder" => "field undefined");
-          }
-          }
-          $simpleArtistDynastyToReturn = array("artist", "dynasty");
-          foreach($simpleArtistDynastyToReturn as $item) {
-            $getter = "get".ucfirst($item);
-            if( null !== $element->$getter()) {
-            $article[$item][] = array("id" => $element->$getter()->getId(), "name" => $element->$getter()->getName());
-          } else {
-            $article[$item][] = array("id" => 0, "placeholder" => "field undefined");
-          }
-          }
-
-/*
-          $sizes = $element->getSizes();
-          foreach($sizes as $s) {
-            $article["sizes"][] = array("id" => $s->getId(), 
-              "width" => $s->getWidth(),
-              "length" => $s->getLength(),
-              "sizecategoryId" => null == $s->getSizecategory() ?  0: $s->getSizecategory()->getId(),
-              "sizecategory" =>  null == $s->getSizecategory() ? "undefined":$s->getSizecategory()->getPlaceholder()
-            );
-          }
-*/
-/* 
-          $article["category"] = array("id" => 0,
-                          "placeholder" => '');
-            $article["theme"][] = array( "id" => 0,
-                           "placehoder" => '',
-                           "category" => '',
-                           "categoryId" => 0);
-          if(null !== $element->getTheme()  && !empty($element->getTheme())) {
-
-            foreach($element->getTheme() as $t) {
-$article["theme"][] = array( "id" => null == $t->getId()? '0': $t->getId(),
-                           "placehoder" => null == $t->getPlaceholder()? '': $t->getPlaceholder(),
-                           "category" => null == $t->getCategory()? '':$t->getCategory()->getPlaceholder(),
-                           "categoryId" => null == $t->getCategory()? 0:$t->getCategory()->getId());
-$article["category"] = array("id" => null == $t->getCategory()? '':$t->getCategory()->getId(),
-                          "placeholder" => null == $t->getCategory()? 0:$t->getCategory()->getPlaceholder());
-            }
-          } 
-          if(null == $element->getTheme() || (null !== $element->getTheme()  && empty($element->getTheme()))) {
-            dd('in the condition');
-                       
-          }
-*/
-
-          $articleList[] = $article;
+          foreach ($articles as $element)
+          {
+            $articleList[] = $listGetter->getAllArticleInfoForEdit($element);
           }   
         }
            //$data = $this->get('jms_serializer')->serialize($translations, 'json');
           // $data = json_encode($translationList) ;
       $data = $this->get('jms_serializer')->serialize($articleList, 'json');
-    } else { $data = "enity ".$element." doesn't exist.";}
+    } else { $data = "entity ".$entityClass." doesn't exist.";}
     $response = new Response($data);
     $response->headers->set('Content-Type', 'application/json');
     return $response;
@@ -240,7 +169,7 @@ $article["category"] = array("id" => null == $t->getCategory()? '':$t->getCatego
     /**
      * @Route("/api/gallery/{type}/{lang}", name="get_gallery", methods={"GET"})
      */
-    public function getArticleGalleryAction($type, $lang)
+    public function getArticleGalleryAction($type, $lang, ListGetter $listGetter)
     {
       $entityClass = 'App\Entity\Article';
       $artistClass = 'App\Entity\Artist';
@@ -259,61 +188,12 @@ $article["category"] = array("id" => null == $t->getCategory()? '':$t->getCatego
         $articles = $this->em->getRepository($entityClass)->findByArtist($artist);
       }
 
-        
-
         $articleList = array();
         if( !empty($articles)) {
           $i =0;
           foreach ($articles as $element){
-           $article = array();
-           $article["id"] = $element->getId();
-           $article["title"] = $element->getTitle();
-           $article["birth"] = $element->getBirth();
-           $article["price"] = $element->getPrice();
-           $article["status"] = $element->getStatus();
-           $article["smallimage"] = $element->getSmall();
-           $article["bigimage"] = $element->getBig();
-          /* $themes = $element->getTheme();
-           $theme = '';
-           foreach ($themes as $t) {
-             $theme = $theme . ' '.$t->getPlaceholder();
-             $article["category"] = null == $t->getCategory()? '': $t->getCategory()->getPlaceholder();
-           }
-           $article["theme"] = $theme;
-           */
-           
-          $article[$lang] = $element->translate($lang)->getDescription();
-          $article["title_cn"] = $element->translate("cn_cn")->getTitle();
-          $simpleElementToReturn = array("product", "material","discount", "form", "theme");
 
-          foreach($simpleElementToReturn as $item) {
-            $getter = "get".ucfirst($item);
-            if( null !== $element->$getter()) {
-            $article[$item][] = array("id" => $element->$getter()->getId(), "placeholder" => $element->$getter()->getPlaceholder());
-          }
-          }
-          $simpleArtistDynastyToReturn = array("artist", "dynasty");
-          foreach($simpleArtistDynastyToReturn as $item) {
-            $getter = "get".ucfirst($item);
-            if( null !== $element->$getter()) {
-            $article[$item][] = array("id" => $element->$getter()->getId(), "name" => $element->$getter()->getName());
-          }
-          }
-
-
-          $sizes = $element->getSizes();
-          foreach($sizes as $s) {
-            $article["sizes"][] = array("id" => $s->getId(), 
-              "width" => $s->getWidth(),
-              "length" => $s->getLength(),
-              "sizecategory" => array("id" => null == $s->getSizecategory()? 0: $s->getSizecategory()->getId(),
-                                      "placeholder" =>  null == $s->getSizecategory()? '': $s->getSizecategory()->getPlaceholder()
-                                    )
-            );
-          }
-
-
-          $articleList[] = $article;
+          $articleList[] = $listGetter->getArticleInfoForGallery($element, $lang);
         }
       }
       $data = $this->get('jms_serializer')->serialize($articleList, 'json');
@@ -322,6 +202,36 @@ $article["category"] = array("id" => null == $t->getCategory()? '':$t->getCatego
     $response->headers->set('Content-Type', 'application/json');
     return $response;
   }
+
+  /**
+     * @Route("/api/gallery/art/{id}/{lang}", name="get_display_article", methods={"GET"})
+     */
+    public function getArticleForDisplayAction($id, $lang, ListGetter $listGetter)
+    {
+      $entityClass = 'App\Entity\Article';
+      $artistClass = 'App\Entity\Artist';
+      
+      if(!is_numeric($id)) 
+      {
+         $data = "No correct id was provided";
+      } else 
+      {
+        $article = $this->em->getRepository($entityClass)->findOneById($id);
+        if(null == $article) 
+        {
+          $data = "No article has been found";
+        } else 
+        {
+          $data = $listGetter->getArticleInfo($article, $lang);
+        }     
+     }
+      $data = $this->get('jms_serializer')->serialize($data, 'json');
+   
+    $response = new Response($data);
+    $response->headers->set('Content-Type', 'application/json');
+    return $response;
+  }
+
 
 
     /**
@@ -360,6 +270,7 @@ return $response;
     }
 
     /**
+    *  set hightlight status of article  
      * is equal to 1 if the article is a highlight
      * @IsGranted("ROLE_ADMIN")
      * @Route("/api/admin/highlight", name="update_highlight", methods={"POST"})
@@ -379,7 +290,7 @@ return $response;
      /**
      * @Route("/api/articleListOfArtist/{artistId}/{lang}", name="get_list_of_painting_of_artist", methods={"GET"})
      */
-    public function getPaintingListOfArtistAction(int $artistId, string $lang)
+    public function getPaintingListOfArtistAction(int $artistId, string $lang, ListGetter $listGetter)
     {
       $entityClass = 'App\Entity\Article';
       $artistEntity = 'App\Entity\Artist';
@@ -390,17 +301,8 @@ return $response;
         $data = array();
         if( null !== $paintingList) {
           foreach( $paintingList as $painting) {
-            $paintingInfo = array();
-            $paintingInfo['title'] = $painting->translate($lang)->getTitle();
-            $paintingInfo['artist'] = $artist->translate($lang)->getName();
-            $paintingInfo['dynasty'] = $painting->getDynasty()->translate($lang)->getName();
-            $paintingInfo['bigimage'] = $painting->getBig();          
-            $paintingInfo['smallimage'] = $painting->getSmall();
-            $paintingInfo['description'] = null !== $painting->translate($lang)->getDescription() ? $painting->translate($lang)->getDescription() : '';
-            $paintingInfo['theme'] = null !== $painting->getTheme() ? $painting->getTheme()->getId() : '1'; // To fix for filter
-            $paintingInfo['form'] = null !== $painting->getForm() ? $painting->getForm()->getId() : '1';
-           // $paintingInfo['category'] =[1,2,3]; // $painting->getCategory()->getId(); // To fix for filter
-            $data[] = $paintingInfo;
+           
+            $data[] = $listGetter->getArticleInfoForGallery($painting, $lang);
           }
         }
         
@@ -412,9 +314,9 @@ return $response;
 
       $response = new Response($data);
 
-$response->headers->set('Content-Type', 'application/json');
-return $response;
-}
+      $response->headers->set('Content-Type', 'application/json');
+      return $response;
+    }
 
     
 
